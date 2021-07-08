@@ -13,18 +13,17 @@ import { Role } from './roles.model';
 })
 export class UserRoles extends Model<UserRoles> {
   @Column({
-    type: DataType.INTEGER,
-    unique: true,
-    autoIncrement: true,
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
     primaryKey: true,
   })
-  id: number;
+  id: string;
 
   @ForeignKey(() => Role)
-  @Column({ type: DataType.INTEGER })
-  roleId: number;
+  @Column({ type: DataType.UUID })
+  roleId: string;
 
   @ForeignKey(() => User)
-  @Column({ type: DataType.INTEGER })
-  userId: number;
+  @Column({ type: DataType.UUID })
+  userId: string;
 }

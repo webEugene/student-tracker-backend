@@ -18,12 +18,11 @@ interface UserCreationAttrs {
 export class User extends Model<User, UserCreationAttrs> {
   @ApiProperty({ example: '1', description: 'Unique identifier' })
   @Column({
-    type: DataType.INTEGER,
-    unique: true,
-    autoIncrement: true,
+    type: DataType.UUID,
+    defaultValue: DataType.UUIDV4,
     primaryKey: true,
   })
-  id: number;
+  id: string;
   @ApiProperty({ example: 'test@mail.com', description: 'User email' })
   @Column({ type: DataType.STRING, unique: true, allowNull: false })
   email: string;
