@@ -8,7 +8,7 @@ async function bootstrap() {
     .setTitle('Student tracker backend')
     .setDescription('Student tracker backend')
     .setVersion('1.0.0')
-    .addTag('student-tracker')
+    .addTag('students-tracker')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('/api/docs', app, document);
