@@ -8,6 +8,9 @@ interface StudentCreationAttrs {
   email: string;
   phone: string;
   birthday: string;
+  came_at: string;
+  leave_at: string;
+  taken_away: string;
 }
 
 @Table({ tableName: 'students' })
@@ -44,21 +47,30 @@ export class Student extends Model<Student, StudentCreationAttrs> {
   })
   birthday: string;
   @ApiProperty({
-    example: 'email@email.com',
-    description: "Student's parent's email",
+    example: '12/12/2017-10:22',
+    description: 'Date and time of come',
   })
   @Column({
-    type: DataType.STRING,
-    allowNull: false,
+    type: DataType.DATE,
+    allowNull: true,
   })
-  email: string;
+  came_at: string;
   @ApiProperty({
-    example: '123456768',
-    description: "Student's parent's phone",
+    example: '12/12/2017-14:22',
+    description: 'Date and time of leave',
+  })
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  leave_at: string;
+  @ApiProperty({
+    example: 'By father',
+    description: 'Taken by someone',
   })
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
   })
-  phone: string;
+  taken_away: string;
 }
