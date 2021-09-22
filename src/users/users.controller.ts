@@ -26,4 +26,13 @@ export class UsersController {
   async getAllUsers() {
     return this.usersService.getAllUsers();
   }
+
+  @ApiOperation({ summary: 'Getting all users' })
+  @ApiResponse({ status: 200, type: [User] })
+  @Roles('admin')
+  @UseGuards(RolesGuard)
+  @Get()
+  async test() {
+    return 'Success!';
+  }
 }

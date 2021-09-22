@@ -13,9 +13,10 @@ export class UsersService {
 
   async createUser(dto: CreateUserDto): Promise<User> {
     const user = await this.userRepository.create(dto);
-    const role = await this.roleService.getRoleByValue('admin');
-    await user.$set('roles', [role.id]);
-    user.roles = [role];
+    // const role = await this.roleService.getRoleByValue('admin');
+    // await user.$set('roles', [role.id]);
+    // user.roles = [role];
+    user.roles = [];
     return user;
   }
 
@@ -24,12 +25,11 @@ export class UsersService {
     return users;
   }
 
-  async getUserByEmail(email: string) {
+  async getUserByEmail(email: string): Promise<User> {
     const user = await this.userRepository.findOne({
       where: { email },
       include: { all: true },
     });
-
     return user;
   }
 }
