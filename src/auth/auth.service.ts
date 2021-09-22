@@ -9,15 +9,17 @@ import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { User } from '../users/users.model';
+import { AuthLoginDto } from './dto/AuthLoginDto';
+
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UsersService,
     private jwtService: JwtService,
   ) {}
-  async login(userDto: CreateUserDto) {
-    const user = await this.validateUser(userDto);
 
+  async login(loginDto: AuthLoginDto) {
+    const user = await this.validateUser(loginDto);
     return this.generateToken(user);
   }
 
@@ -40,18 +42,36 @@ export class AuthService {
     const payload = { email: user.email, id: user.id, roles: user.roles };
 
     return {
-      token: this.jwtService.sign(payload),
+      userInfo: {
+        id: user.id,
+        username: user.username,
+      },
+      access_token: this.jwtService.sign(payload),
     };
   }
 
-  private async validateUser(userDto: CreateUserDto) {
+  private async validateUser(userDto: AuthLoginDto) {
     const user = await this.userService.getUserByEmail(userDto.email);
     const passwordEqual = await bcrypt.compare(userDto.password, user.password);
-
-    if (user && passwordEqual) {
-      return user;
+    if (user === null) {
+      throw new UnauthorizedException({ massage: 'Incorrect email' });
+    }
+    if (!passwordEqual) {
+      throw new UnauthorizedException({ massage: 'Incorrect password' });
     }
 
-    throw new UnauthorizedException({ massage: 'Incorrect password or email' });
+    if (user === null && !passwordEqual) {
+      throw new UnauthorizedException({
+        massage: 'Incorrect password and email',
+      });
+    }
+
+    return user;
+    // if (user === null || !passwordEqual) {
+    //   throw new UnauthorizedException({
+    //     massage: 'Incorrect password or email',
+    //   });
+    // }
+    // return user;
   }
 }

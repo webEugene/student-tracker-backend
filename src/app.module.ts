@@ -9,6 +9,9 @@ import { UserRoles } from './roles/user-roles.model';
 import { AuthModule } from './auth/auth.module';
 import { StudentsController } from './students/students.controller';
 import { StudentsModule } from './students/students.module';
+import { GroupsModule } from './groups/groups.module';
+import { Student } from './students/students.model';
+import { Group } from './groups/group.model';
 
 @Module({
   controllers: [StudentsController],
@@ -24,13 +27,14 @@ import { StudentsModule } from './students/students.module';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [User, Role, UserRoles],
+      models: [User, Role, UserRoles, Student, Group],
       autoLoadModels: true,
     }),
     UsersModule,
     RolesModule,
     AuthModule,
     StudentsModule,
+    GroupsModule,
   ],
 })
 export class AppModule {}

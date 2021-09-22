@@ -1,18 +1,29 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import {
+  Column,
+  DataType,
+  ForeignKey,
+  HasOne,
+  Model,
+  Table,
+} from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
+import { Group } from '../groups/group.model';
 
-interface StudentCreationAttrs {
+interface IStudentCreationAttrs {
   name: string;
   surname: string;
-  avatar: string;
-  birthday: string;
-  came_at: string;
-  leave_at: string;
-  taken_away: string;
+  phone: string;
+  group: string;
+  avatar?: string;
+  birthday?: string;
+  came_at?: string;
+  brought?: string;
+  left_at?: string;
+  took?: string;
 }
 
 @Table({ tableName: 'students' })
-export class Student extends Model<Student, StudentCreationAttrs> {
+export class Student extends Model<Student, IStudentCreationAttrs> {
   @ApiProperty({ example: '1', description: 'Unique identifier' })
   @Column({
     type: DataType.UUID,
@@ -32,18 +43,30 @@ export class Student extends Model<Student, StudentCreationAttrs> {
     allowNull: false,
   })
   surname: string;
+  @ApiProperty({ example: 'Group name', description: 'Group name' })
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  student_group: string;
+  @ApiProperty({ example: '380991234567', description: 'Phone number' })
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  phone: string;
   @ApiProperty({ example: 'image.png', description: 'Student avatar' })
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  avatar: string;
+  avatar?: string;
   @ApiProperty({ example: '12/12/2017', description: 'Student birthday' })
   @Column({
     type: DataType.DATE,
-    allowNull: false,
+    allowNull: true,
   })
-  birthday: string;
+  birthday?: string;
   @ApiProperty({
     example: '12/12/2017-10:22',
     description: 'Date and time of come',
@@ -52,7 +75,7 @@ export class Student extends Model<Student, StudentCreationAttrs> {
     type: DataType.DATE,
     allowNull: true,
   })
-  came_at: string;
+  came_at?: string;
   @ApiProperty({
     example: '12/12/2017-14:22',
     description: 'Date and time of leave',
@@ -61,7 +84,16 @@ export class Student extends Model<Student, StudentCreationAttrs> {
     type: DataType.DATE,
     allowNull: true,
   })
-  leave_at: string;
+  left_at: string;
+  @ApiProperty({
+    example: 'By mother',
+    description: 'Brought by someone',
+  })
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  brought?: string;
   @ApiProperty({
     example: 'By father',
     description: 'Taken by someone',
@@ -70,5 +102,13 @@ export class Student extends Model<Student, StudentCreationAttrs> {
     type: DataType.STRING,
     allowNull: true,
   })
-  taken_away: string;
+  took?: string;
+
+  // @HasOne(() => Group)
+  // group: Group;
+
+  @ApiProperty({ example: '1', description: 'Foreign key of groupId as UUID' })
+  @Column({ type: DataType.UUID })
+  @ForeignKey(() => Group)
+  groupId: string;
 }
