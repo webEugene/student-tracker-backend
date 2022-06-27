@@ -3,6 +3,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UsersModule } from '../users/users.module';
+import { CompanyModule } from '../company/company.module';
 
 @Module({
   controllers: [AuthController],
@@ -15,6 +16,7 @@ import { UsersModule } from '../users/users.module';
         expiresIn: '24h',
       },
     }),
+    CompanyModule,
   ],
   exports: [AuthService, JwtModule],
 })
