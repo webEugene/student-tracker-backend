@@ -1,39 +1,70 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsISO8601, IsString, Length } from 'class-validator';
+import {
+  IsEmail,
+  IsISO8601,
+  IsNotEmpty,
+  IsOptional,
+  IsPhoneNumber,
+  IsString,
+  IsUUID,
+  Length,
+} from 'class-validator';
 
 export class UpdateStudentDto {
   @ApiProperty({ example: 'Ivan', description: 'Student name' })
   @IsString({ message: 'Should be string' })
   @Length(2, 20, { message: 'Name should be between 2-20 characters' })
+  @IsOptional()
   readonly name: string;
+
   @ApiProperty({ example: 'Ivanov', description: 'Student surname' })
   @IsString({ message: 'Should be string' })
   @Length(2, 20, { message: 'Name should be between 2-20 characters' })
+  @IsOptional()
   readonly surname: string;
+
   @ApiProperty({ example: 'image.png', description: 'Student avatar' })
-  readonly avatar: string;
+  @ApiProperty({
+    example: 'Male',
+    description: 'Gender',
+  })
+  @IsNotEmpty()
+  @IsOptional()
+  readonly gender: string;
+
+  @ApiProperty({
+    example: '380991234567',
+    description: "Student's parent phone number",
+  })
+  @IsPhoneNumber('UA', { message: 'Phone number should be in Ukraine format' })
+  @IsOptional()
+  readonly mobilePhone: string;
+
   @ApiProperty({
     example: '2011-10-05T14:48:00.000Z',
     description: 'Student birthday',
   })
   @IsISO8601({ strict: true })
+  @IsOptional()
   readonly birthday: string;
-  @ApiProperty({
-    example: '2011-10-05T14:48:00.000Z',
-    description: 'Date and time of came at in ISO8601 format',
-  })
-  @IsISO8601({ strict: true })
-  readonly came_at: string;
-  @ApiProperty({
-    example: '2011-10-05T14:48:00.000Z',
-    description: 'Date and time of leave in ISO8601 format',
-  })
-  @IsISO8601({ strict: true })
-  readonly leave_at: string;
-  @ApiProperty({
-    example: 'father',
-    description: 'Taken by someone',
-  })
+
+  @ApiProperty({ example: 'image.png', description: 'Student avatar' })
+  @IsNotEmpty()
   @IsString({ message: 'Should be string' })
-  readonly taken_away: string;
+  @IsOptional()
+  readonly avatar_path: string;
+
+  @ApiProperty({
+    example: 'email@email.com',
+    description: "Student's parent's email",
+  })
+  @IsOptional()
+  @IsEmail()
+  readonly email: string;
+
+  @ApiProperty({ example: 'Group name', description: 'Group name' })
+  @IsUUID()
+  @IsNotEmpty()
+  @IsOptional()
+  readonly group_id: string;
 }
