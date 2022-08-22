@@ -33,7 +33,7 @@ export class UpdateStudentDto {
   readonly gender: string;
 
   @ApiProperty({
-    example: '380991234567',
+    example: '+380991234567',
     description: "Student's parent phone number",
   })
   @IsPhoneNumber('UA', { message: 'Phone number should be in Ukraine format' })
@@ -62,9 +62,20 @@ export class UpdateStudentDto {
   @IsEmail()
   readonly email: string;
 
-  @ApiProperty({ example: 'Group name', description: 'Group name' })
+  @ApiProperty({
+    example: '994ba8ac-a052-4194-805b-589204b45716',
+    description: 'Group uuid',
+  })
   @IsUUID()
   @IsNotEmpty()
   @IsOptional()
   readonly group_id: string;
+
+  @ApiProperty({
+    example: '994ba8ac-a052-4194-805b-589204b45716',
+    description: 'Company uuid',
+  })
+  @IsUUID()
+  @IsNotEmpty()
+  readonly company_id: string;
 }

@@ -26,32 +26,40 @@ export class AuthService {
   }
 
   async registration(registerDto: AuthRegisterDto) {
-    const companyCheck = await this.companyService.findOne(registerDto.company);
-    if (companyCheck) {
+    const hasCompany = await this.companyService.findOne(registerDto.company);
+
+    if (hasCompany) {
       throw new HttpException(
         'Company already exists!',
         HttpStatus.BAD_REQUEST,
       );
     }
+    const company = await this.companyService.create({
+      company: registerDto.company,
+    });
+
     const candidate = await this.userService.getUserByEmail(registerDto.email);
     if (candidate) {
       throw new HttpException('User already exists!', HttpStatus.BAD_REQUEST);
     }
-    await this.companyService.create({
-      company: registerDto.company,
-    });
 
     const hashPassword = await bcrypt.hash(registerDto.password, 5);
     const user = await this.userService.registerAdmin({
       ...registerDto,
       password: hashPassword,
+      company_id: company.id,
     });
 
     return this.generateToken(user);
   }
 
   private async generateToken(user: User) {
-    const payload = { email: user.email, id: user.id, roles: user.roles };
+    const payload = {
+      email: user.email,
+      id: user.id,
+      roles: user.roles,
+      company_id: user.company_id,
+    };
 
     return {
       userInfo: {
@@ -59,6 +67,7 @@ export class AuthService {
         name: user.name,
         surname: user.surname,
         roles: user.roles,
+        company_id: user.company_id,
       },
       access_token: this.jwtService.sign(payload),
     };
@@ -81,11 +90,5 @@ export class AuthService {
     }
 
     return user;
-    // if (user === null || !passwordEqual) {
-    //   throw new UnauthorizedException({
-    //     massage: 'Incorrect password or email',
-    //   });
-    // }
-    // return user;
   }
 }

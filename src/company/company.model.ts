@@ -8,6 +8,9 @@ import {
 } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
 import { Group } from '../groups/groups.model';
+import { User } from '../users/users.model';
+import { Student } from '../students/students.model';
+import { Teacher } from '../teachers/teachers.model';
 interface ICompanyAttr {
   company: string;
 }
@@ -18,7 +21,10 @@ interface ICompanyAttr {
   tableName: 'companies',
 })
 export class Company extends Model<Company, ICompanyAttr> {
-  @ApiProperty({ example: '1', description: 'Unique identifier' })
+  @ApiProperty({
+    example: '994ba8ac-a052-4194-805b-589204b45716',
+    description: 'UUID',
+  })
   @Column({
     type: DataType.UUID,
     defaultValue: DataType.UUIDV4,
@@ -26,10 +32,19 @@ export class Company extends Model<Company, ICompanyAttr> {
   })
   id: string;
 
-  @ApiProperty({ example: 'Group name', description: 'Group name' })
+  @ApiProperty({ example: 'Corporation', description: 'Company name' })
   @Column({ type: DataType.STRING, allowNull: false, unique: true })
   company: string;
 
   @HasMany(() => Group)
   groups: Group[];
+
+  @HasMany(() => User)
+  users: User[];
+
+  @HasMany(() => Student)
+  students: Student[];
+
+  @HasMany(() => Teacher)
+  teachers: Teacher[];
 }

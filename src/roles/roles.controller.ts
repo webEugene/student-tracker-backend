@@ -1,18 +1,36 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
+import { Role } from './roles.model';
 
+@ApiTags('Roles')
 @Controller('roles')
 export class RolesController {
   constructor(private roleService: RolesService) {}
 
   @Post()
-  create(@Body() dto: CreateRoleDto) {
+  @ApiCreatedResponse({
+    description: 'Role is successfully created.',
+    type: Role,
+  })
+  @ApiForbiddenResponse({ description: 'Forbidden.' })
+  @ApiBadRequestResponse({ description: 'Bad Request.' })
+  create(@Body() dto: CreateRoleDto): Promise<Role> {
     return this.roleService.createRole(dto);
   }
 
   @Get('/:value')
-  getByValue(@Param('value') value: string) {
+  @ApiOperation({ summary: 'Find one role' })
+  @ApiResponse({ status: 200, type: Role })
+  getByValue(@Param('value') value: string): Promise<Role> {
     return this.roleService.getRoleByValue(value);
   }
 }

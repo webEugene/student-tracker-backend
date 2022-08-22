@@ -1,9 +1,4 @@
-import {
-  HttpException,
-  HttpStatus,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './users.model';
 import { RolesService } from '../roles/roles.service';
@@ -11,16 +6,26 @@ import { AuthRegisterDto } from '../auth/dto/auth-register.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { Role } from '../roles/roles.model';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
+import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
+import { Company } from '../company/company.model';
+import { TeachersService } from '../teachers/teachers.service';
+import { GroupsService } from '../groups/groups.service';
+import { StudentsService } from '../students/students.service';
+import filterIds from '../helpers/helpersList';
 import { Teacher } from '../teachers/teachers.model';
 import { Group } from '../groups/groups.model';
-import { UpdateTeacherDto } from '../teachers/dto/update-teacher.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { Student } from '../students/students.model';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User) private userRepository: typeof User,
     private roleService: RolesService,
+    private teacherService: TeachersService,
+    private groupsService: GroupsService,
+    private studentsService: StudentsService,
   ) {}
 
   async registerAdmin(dto: AuthRegisterDto): Promise<User> {
@@ -51,8 +56,11 @@ export class UsersService {
     return user;
   }
 
-  async getAllUsers() {
+  async getAllUsers(query: GetCompanyIdDto): Promise<User[]> {
     const users = await this.userRepository.findAll({
+      where: {
+        company_id: query.company_id,
+      },
       include: [
         {
           model: Role,
@@ -78,25 +86,32 @@ export class UsersService {
         },
       ],
     });
-    console.log(user);
     return user;
   }
 
-  async findOneUser(id: string): Promise<User> {
-    const user = await this.findOne(id);
+  async findOneUser(findOneUserDto: IdAndCompanyIdDto): Promise<User> {
+    const user = await this.findOne(
+      findOneUserDto.id,
+      findOneUserDto.company_id,
+    );
     return user;
   }
 
-  async findOne(id: string): Promise<User> {
+  async findOne(id: string, company_id: string): Promise<User> {
     return this.userRepository.findOne({
       where: {
         id,
+        company_id,
       },
       include: [
         {
           model: Role,
           attributes: ['value', 'description'],
           through: { attributes: [] },
+        },
+        {
+          model: Company,
+          attributes: ['company'],
         },
       ],
     });
@@ -108,13 +123,44 @@ export class UsersService {
   ): Promise<[number, User[]]> {
     const updateUser = await this.userRepository.update(
       { ...updateUserDto },
-      { where: { id }, returning: true },
+      { where: { id, company_id: updateUserDto.company_id }, returning: true },
     );
     return updateUser;
   }
 
-  async deleteUser(id: string): Promise<void> {
-    const deleteUser = await this.findOne(id);
+  async deleteUser(deleteUserDto: IdAndCompanyIdDto): Promise<void> {
+    const deleteUser = await this.findOne(
+      deleteUserDto.id,
+      deleteUserDto.company_id,
+    );
     await deleteUser.destroy();
+  }
+
+  async deleteAdminAndCompany(deleteEverything: IdAndCompanyIdDto) {
+    const findAllTeachers = await this.teacherService.getAllTeachers({
+      company_id: deleteEverything.company_id,
+    });
+    const findAllGroups = await this.groupsService.findAllGroups({
+      company_id: deleteEverything.company_id,
+    });
+    const findAllStudents = await this.studentsService.getAllStudents({
+      company_id: deleteEverything.company_id,
+    });
+    const teachersIds = filterIds(findAllTeachers);
+    const studentsIds = filterIds(findAllStudents);
+    const groupsIds = filterIds(findAllGroups);
+    if (teachersIds.length !== 0) {
+      await Teacher.destroy({ where: { id: teachersIds } });
+    }
+    if (studentsIds.length !== 0) {
+      await Student.destroy({ where: { id: studentsIds } });
+    }
+    if (groupsIds.length !== 0) {
+      await Group.destroy({ where: { id: groupsIds } });
+    }
+
+    await User.destroy({ where: { id: deleteEverything.id } });
+
+    await Company.destroy({ where: { id: deleteEverything.company_id } });
   }
 }

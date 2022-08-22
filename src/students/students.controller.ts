@@ -9,39 +9,46 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UseGuards,
   UseInterceptors,
-  UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { StudentsService } from './students.service';
 import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiOperation,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { CreateStudentDto } from './dto/create-student.dto';
 import { Student } from './students.model';
-import { Roles } from '../auth/roles-auth.decorator';
-import { RolesGuard } from '../auth/roles.guard';
-import { UpdateStudentDto } from './dto/update-student-dto';
-import { ChangeGroupDto } from './dto/change-group.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { avatarStorage } from '../helpers/avatar-storage';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+// Import DTOs
+import { CreateStudentDto } from './dto/create-student.dto';
+import { UpdateStudentDto } from './dto/update-student-dto';
+import { ChangeGroupDto } from './dto/change-group.dto';
+import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
 
-@ApiTags('students')
+@ApiTags('Students')
 @Controller('students')
+@UseGuards(JwtAuthGuard)
 export class StudentsController {
   constructor(private readonly studentsService: StudentsService) {}
 
-  @ApiOperation({ summary: 'Creating new user' })
-  @ApiResponse({ status: 201, type: Student })
-  @ApiCreatedResponse({ type: CreateStudentDto })
-  @UseGuards(JwtAuthGuard)
   @Post()
+  @ApiCreatedResponse({
+    description: 'Student is successfully created.',
+    type: Student,
+  })
+  @ApiForbiddenResponse({ description: 'Forbidden.' })
+  @ApiBadRequestResponse({ description: 'Bad Request.' })
   async createStudent(
     @Body(new ValidationPipe()) newStudentDto: CreateStudentDto,
   ): Promise<Student> {
@@ -58,56 +65,75 @@ export class StudentsController {
     return student;
   }
 
-  @ApiOperation({ summary: 'Delete student by ID' })
-  @ApiResponse({ status: 204, type: [Student] })
-  @UseGuards(JwtAuthGuard)
-  @Delete(':id')
-  async deleteStudent(@Param('id', ParseUUIDPipe) id: string) {
-    return await this.studentsService.deleteStudent(id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Patch(':id')
+  @Patch('/:id')
+  @ApiOperation({ summary: 'Change student' })
+  @ApiResponse({ status: 200, type: Student })
   async updateStudent(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe()) updateStudentDto: UpdateStudentDto,
-  ) {
+  ): Promise<[number, Student[]]> {
     return await this.studentsService.updateStudent(id, updateStudentDto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Delete('/:id')
+  @ApiOperation({ summary: 'Delete student' })
+  @ApiResponse({ status: 204, type: Student })
+  async deleteStudent(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query() query: GetCompanyIdDto,
+  ): Promise<void> {
+    return await this.studentsService.deleteStudent({ id, ...query });
+  }
+
   @Patch('/student-group-change/:id')
+  @ApiOperation({ summary: 'Change group of student' })
+  @ApiResponse({ status: 204, type: Student })
   async changeStudentGroup(
     @Param('id', ParseUUIDPipe) id: string,
-    @Body(new ValidationPipe()) ChangeGroupDto: ChangeGroupDto,
-  ) {
-    return await this.studentsService.changeStudentGroup(id, ChangeGroupDto);
+    @Body(new ValidationPipe()) changeGroupDto: ChangeGroupDto,
+  ): Promise<[number, Student[]]> {
+    return await this.studentsService.changeStudentGroup(id, changeGroupDto);
   }
 
+  @Get()
   @ApiOperation({ summary: 'Getting all students' })
   @ApiResponse({ status: 200, type: [Student] })
-  @UseGuards(JwtAuthGuard)
-  @Get()
-  async getAllStudents() {
-    return await this.studentsService.getAllStudents();
+  async getAllStudents(@Query() query: GetCompanyIdDto): Promise<Student[]> {
+    return await this.studentsService.getAllStudents(query);
   }
 
+  @Get('/:id')
   @ApiOperation({ summary: 'Getting one student' })
   @ApiResponse({ status: 200, type: [Student] })
-  @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  async findOneStudent(@Param('id', ParseUUIDPipe) id: string) {
-    return await this.studentsService.findOneStudent(id);
+  async findOneStudent(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query() query: GetCompanyIdDto,
+  ): Promise<Student> {
+    return await this.studentsService.findOneStudent({ id, ...query });
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch('/upload-avatar/:id')
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Update student avatar' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        avatar_path: { type: 'string' },
+      },
+    },
+  })
   @UseInterceptors(FileInterceptor('avatar_path', avatarStorage))
   async uploadStudentAvatar(
     @Param('id', ParseUUIDPipe) id: string,
     @UploadedFile() file,
-  ) {
+    @Query() query: GetCompanyIdDto,
+  ): Promise<[number, Student[]]> {
     const avatarName = file.originalname.toLowerCase().split(' ').join('-');
-    return await this.studentsService.uploadStudentAvatar(id, avatarName);
+    return await this.studentsService.uploadStudentAvatar(
+      id,
+      avatarName,
+      query.company_id,
+    );
   }
 }

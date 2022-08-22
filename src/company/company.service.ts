@@ -3,7 +3,6 @@ import { CreateCompanyDto } from './dto/create-company.dto';
 import {
   ConflictException,
   InternalServerErrorException,
-  NotFoundException,
 } from '@nestjs/common';
 import { Company } from './company.model';
 
@@ -32,12 +31,21 @@ export class CompanyService {
       },
     });
 
-    // if (!companyName) {
-    //   throw new NotFoundException({
-    //     message: ['company not found.'],
-    //   });
-    // }
-
     return companyName;
+  }
+
+  async remove(id: string): Promise<void> {
+    const company = await this.findOne(id);
+    try {
+      await company.destroy();
+    } catch (error) {
+      if (error.parent.code === '23503') {
+        throw new ConflictException({
+          message: ['Company can not be deleted'],
+        });
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 }

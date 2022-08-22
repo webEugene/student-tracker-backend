@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+  Length,
+} from 'class-validator';
 
 export class AuthRegisterDto {
   @ApiProperty({ example: 'Ivan', description: 'User name' })
@@ -18,11 +25,19 @@ export class AuthRegisterDto {
   @IsEmail(undefined, { each: true, message: 'email is incorrect' })
   readonly email: string;
 
-  @ApiProperty({ example: 'Company name', description: 'Company name' })
+  @ApiProperty({ example: 'Corporation', description: 'Company name' })
   @IsNotEmpty()
   readonly company: string;
 
   @ApiProperty({ example: 'qwerty', description: 'Unique password' })
   @IsNotEmpty()
   readonly password: string;
+
+  @ApiProperty({
+    example: '994ba8ac-a052-4194-805b-589204b45716',
+    description: 'Company uuid',
+  })
+  @IsUUID()
+  @IsOptional()
+  readonly company_id: string;
 }

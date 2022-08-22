@@ -12,9 +12,27 @@ async function bootstrap() {
     .setDescription('Student tracker backend')
     .setVersion('1.0.0')
     .addTag('students-tracker')
+    .addBearerAuth(undefined, 'defaultBearerAuth')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('/api/docs', app, document);
+  const options = {
+    swaggerOptions: {
+      authAction: {
+        defaultBearerAuth: {
+          name: 'defaultBearerAuth',
+          schema: {
+            description: 'Default',
+            type: 'http',
+            in: 'header',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          },
+          value: 'thisIsASampleBearerAuthToken123',
+        },
+      },
+    },
+  };
+  SwaggerModule.setup('/api/docs', app, document, options);
   await app.listen(process.env.PORT);
 }
 
