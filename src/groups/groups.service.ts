@@ -10,6 +10,8 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Group } from './groups.model';
 import { Student } from '../students/students.model';
 import { Teacher } from '../teachers/teachers.model';
+import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
+import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
 
 @Injectable()
 export class GroupsService {
@@ -29,8 +31,11 @@ export class GroupsService {
     }
   }
 
-  async findAll(): Promise<Group[]> {
+  async findAllGroups(query: GetCompanyIdDto): Promise<Group[]> {
     const groups = await this.groupRepository.findAll({
+      where: {
+        company_id: query.company_id,
+      },
       include: [
         { model: Student, attributes: ['id', 'name', 'surname'] },
         { model: Teacher, attributes: ['id', 'name', 'surname'] },
@@ -46,8 +51,12 @@ export class GroupsService {
     return groups;
   }
 
-  async onlyGroupsFind(): Promise<Group[]> {
-    const groups = await this.groupRepository.findAll();
+  async onlyGroupsFind(query: GetCompanyIdDto): Promise<Group[]> {
+    const groups = await this.groupRepository.findAll({
+      where: {
+        company_id: query.company_id,
+      },
+    });
 
     if (!groups) {
       throw new NotFoundException({
@@ -58,10 +67,11 @@ export class GroupsService {
     return groups;
   }
 
-  async findOne(id: string): Promise<Group> {
+  async findOne(id: string, company_id: string): Promise<Group> {
     const group = await this.groupRepository.findOne({
       where: {
         id,
+        company_id,
       },
       include: [{ model: Teacher, attributes: ['id', 'name', 'surname'] }],
     });
@@ -75,15 +85,36 @@ export class GroupsService {
     return group;
   }
 
-  async update(UpdateGroupDto: UpdateGroupDto) {
-    const group = await this.findOne(UpdateGroupDto.id);
-    return await this.groupRepository.update(UpdateGroupDto, {
-      where: { id: group.id },
+  async update(updateGroupDto: UpdateGroupDto) {
+    const group = await this.findOne(
+      updateGroupDto.id,
+      updateGroupDto.company_id,
+    );
+    return await this.groupRepository.update(updateGroupDto, {
+      where: {
+        id: group.id,
+        company_id: group.company_id,
+      },
     });
   }
 
-  async remove(id: string): Promise<void> {
-    const group = await this.findOne(id);
-    await group.destroy();
+  async remove(deleteGroupDto: IdAndCompanyIdDto): Promise<void> {
+    const group = await this.findOne(
+      deleteGroupDto.id,
+      deleteGroupDto.company_id,
+    );
+    try {
+      await group.destroy();
+    } catch (error) {
+      if (error.parent.code === '23503') {
+        throw new ConflictException({
+          message: [
+            'Group can not be deleted. Delete relations with student or teacher first!',
+          ],
+        });
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 }

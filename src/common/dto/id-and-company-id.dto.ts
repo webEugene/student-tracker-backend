@@ -1,19 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsUUID } from 'class-validator';
 
-export class UpdateGroupDto {
+export class IdAndCompanyIdDto {
   @ApiProperty({
     example: '994ba8ac-a052-4194-805b-589204b45716',
-    description: 'Group uuid',
+    description: 'uuid',
   })
-  @IsNotEmpty()
   @IsUUID()
-  readonly id: string;
-
-  @ApiProperty({ example: 'Montessori', description: 'Group name' })
-  @IsString()
   @IsNotEmpty()
-  readonly name: string;
+  readonly id: string;
 
   @ApiProperty({
     example: '994ba8ac-a052-4194-805b-589204b45716',

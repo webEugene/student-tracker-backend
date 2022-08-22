@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Student } from './students.model';
 import { CreateStudentDto } from './dto/create-student.dto';
@@ -8,6 +12,8 @@ import { Group } from '../groups/groups.model';
 import { Visits } from '../visits/visits.model';
 import { Teacher } from '../teachers/teachers.model';
 import { Op } from 'sequelize';
+import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
+import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
 
 @Injectable()
 export class StudentsService {
@@ -16,12 +22,24 @@ export class StudentsService {
   ) {}
 
   async createStudent(dto: CreateStudentDto): Promise<Student> {
-    const student = await this.studentRepository.create(dto);
-    return student;
+    try {
+      return await this.studentRepository.create(dto);
+    } catch (error) {
+      if (error.code === '23505') {
+        throw new ConflictException({
+          message: ['Student is already exists'],
+        });
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
-  async deleteStudent(id: string): Promise<void> {
-    const deletedStudent = await this.findOne(id);
+  async deleteStudent(deleteStudentDto: IdAndCompanyIdDto): Promise<void> {
+    const deletedStudent = await this.findOne(
+      deleteStudentDto.id,
+      deleteStudentDto.company_id,
+    );
     await deletedStudent.destroy();
   }
 
@@ -31,7 +49,10 @@ export class StudentsService {
   ): Promise<[number, Student[]]> {
     const updatedStudent = await this.studentRepository.update(
       { ...updateStudentDto },
-      { where: { id }, returning: true },
+      {
+        where: { id, company_id: updateStudentDto.company_id },
+        returning: true,
+      },
     );
     return updatedStudent;
   }
@@ -42,12 +63,15 @@ export class StudentsService {
   ): Promise<[number, Student[]]> {
     const changedStudentGroup = await this.studentRepository.update(
       { ...changeStudentGroupDto },
-      { where: { id }, returning: true },
+      {
+        where: { id, company_id: changeStudentGroupDto.company_id },
+        returning: true,
+      },
     );
     return changedStudentGroup;
   }
 
-  async getAllStudents() {
+  async getAllStudents(query: GetCompanyIdDto) {
     const date = new Date();
     const day = (date.getDate() < 10 ? '0' : '') + date.getDate();
     const month = (date.getMonth() + 1 < 10 ? '0' : '') + (date.getMonth() + 1);
@@ -70,17 +94,23 @@ export class StudentsService {
           },
         },
       ],
+      where: {
+        company_id: query.company_id,
+      },
       order: [['id', 'DESC']],
     });
     return students;
   }
 
-  async findOneStudent(id: string): Promise<Student> {
-    const student = await this.findOne(id);
+  async findOneStudent(findOneStudentDto: IdAndCompanyIdDto): Promise<Student> {
+    const student = await this.findOne(
+      findOneStudentDto.id,
+      findOneStudentDto.company_id,
+    );
     return student;
   }
 
-  async findOne(id: string): Promise<Student> {
+  async findOne(id: string, company_id: string): Promise<Student> {
     return this.studentRepository.findOne({
       include: [
         {
@@ -95,6 +125,7 @@ export class StudentsService {
       ],
       where: {
         id,
+        company_id,
       },
     });
   }
@@ -102,10 +133,11 @@ export class StudentsService {
   async uploadStudentAvatar(
     id: string,
     avatarName,
+    company_id,
   ): Promise<[number, Student[]]> {
     const createdAvatar = await this.studentRepository.update(
       { avatar_path: avatarName },
-      { where: { id }, returning: true },
+      { where: { id, company_id }, returning: true },
     );
     return createdAvatar;
   }
