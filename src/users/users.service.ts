@@ -13,10 +13,7 @@ import { Company } from '../company/company.model';
 import { TeachersService } from '../teachers/teachers.service';
 import { GroupsService } from '../groups/groups.service';
 import { StudentsService } from '../students/students.service';
-import filterIds from '../helpers/helpersList';
-import { Teacher } from '../teachers/teachers.model';
-import { Group } from '../groups/groups.model';
-import { Student } from '../students/students.model';
+import { VisitsService } from '../visits/visits.service';
 
 @Injectable()
 export class UsersService {
@@ -26,15 +23,16 @@ export class UsersService {
     private teacherService: TeachersService,
     private groupsService: GroupsService,
     private studentsService: StudentsService,
+    private visitsService: VisitsService,
   ) {}
 
   async registerAdmin(dto: AuthRegisterDto): Promise<User> {
-    const user = await this.userRepository.create(dto);
+    const admin = await this.userRepository.create(dto);
     const role = await this.roleService.getRoleByValue('admin');
-    await user.$set('roles', [role.id]);
-    user.roles = [role];
+    await admin.$set('roles', [role.id]);
+    admin.roles = [role];
 
-    return user;
+    return admin;
   }
 
   async createUser(userDto: CreateUserDto): Promise<User> {
@@ -57,7 +55,7 @@ export class UsersService {
   }
 
   async getAllUsers(query: GetCompanyIdDto): Promise<User[]> {
-    const users = await this.userRepository.findAll({
+    return await this.userRepository.findAll({
       where: {
         company_id: query.company_id,
       },
@@ -72,11 +70,10 @@ export class UsersService {
         },
       ],
     });
-    return users;
   }
 
   async getUserByEmail(email: string): Promise<User> {
-    const user = await this.userRepository.findOne({
+    return await this.userRepository.findOne({
       where: { email },
       include: [
         {
@@ -86,7 +83,6 @@ export class UsersService {
         },
       ],
     });
-    return user;
   }
 
   async findOneUser(findOneUserDto: IdAndCompanyIdDto): Promise<User> {
@@ -94,11 +90,17 @@ export class UsersService {
       findOneUserDto.id,
       findOneUserDto.company_id,
     );
-    return user;
+    if (user) {
+      return user;
+    }
+    throw new HttpException(
+      'User with this id does not exist',
+      HttpStatus.FORBIDDEN,
+    );
   }
 
   async findOne(id: string, company_id: string): Promise<User> {
-    return this.userRepository.findOne({
+    const user = this.userRepository.findOne({
       where: {
         id,
         company_id,
@@ -115,17 +117,24 @@ export class UsersService {
         },
       ],
     });
+
+    if (user) {
+      return user;
+    }
+    throw new HttpException(
+      'User with this id does not exist',
+      HttpStatus.NOT_FOUND,
+    );
   }
 
   async updateUser(
     id: string,
     updateUserDto: UpdateUserDto,
   ): Promise<[number, User[]]> {
-    const updateUser = await this.userRepository.update(
+    return await this.userRepository.update(
       { ...updateUserDto },
       { where: { id, company_id: updateUserDto.company_id }, returning: true },
     );
-    return updateUser;
   }
 
   async deleteUser(deleteUserDto: IdAndCompanyIdDto): Promise<void> {
@@ -137,28 +146,13 @@ export class UsersService {
   }
 
   async deleteAdminAndCompany(deleteEverything: IdAndCompanyIdDto) {
-    const findAllTeachers = await this.teacherService.getAllTeachers({
+    // Delete visits
+    await this.visitsService.deleteStudentVisits({
       company_id: deleteEverything.company_id,
     });
-    const findAllGroups = await this.groupsService.findAllGroups({
-      company_id: deleteEverything.company_id,
-    });
-    const findAllStudents = await this.studentsService.getAllStudents({
-      company_id: deleteEverything.company_id,
-    });
-    const teachersIds = filterIds(findAllTeachers);
-    const studentsIds = filterIds(findAllStudents);
-    const groupsIds = filterIds(findAllGroups);
-    if (teachersIds.length !== 0) {
-      await Teacher.destroy({ where: { id: teachersIds } });
-    }
-    if (studentsIds.length !== 0) {
-      await Student.destroy({ where: { id: studentsIds } });
-    }
-    if (groupsIds.length !== 0) {
-      await Group.destroy({ where: { id: groupsIds } });
-    }
-
+    // Delete all users created admin and current component
+    await User.destroy({ where: { id: deleteEverything.id } });
+    // Delete avatars
     await User.destroy({ where: { id: deleteEverything.id } });
 
     await Company.destroy({ where: { id: deleteEverything.company_id } });

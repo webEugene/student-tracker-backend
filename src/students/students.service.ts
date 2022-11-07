@@ -14,6 +14,8 @@ import { Teacher } from '../teachers/teachers.model';
 import { Op } from 'sequelize';
 import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
 import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
+import { access, unlink } from 'fs';
+import { constants } from 'node:fs';
 
 @Injectable()
 export class StudentsService {
@@ -40,35 +42,41 @@ export class StudentsService {
       deleteStudentDto.id,
       deleteStudentDto.company_id,
     );
+    await this.deleteAvatar(deletedStudent.avatar_path);
     await deletedStudent.destroy();
+  }
+  // TODO: fix removing avatar
+  async deleteAvatar(avatar_path): Promise<void> {
+    const fullPath = `./uploads/profileImages/${avatar_path}`;
+    unlink(fullPath, err => {
+      return !err;
+    });
   }
 
   async updateStudent(
     id: string,
     updateStudentDto: UpdateStudentDto,
   ): Promise<[number, Student[]]> {
-    const updatedStudent = await this.studentRepository.update(
+    return await this.studentRepository.update(
       { ...updateStudentDto },
       {
         where: { id, company_id: updateStudentDto.company_id },
         returning: true,
       },
     );
-    return updatedStudent;
   }
 
   async changeStudentGroup(
     id: string,
     changeStudentGroupDto: ChangeGroupDto,
   ): Promise<[number, Student[]]> {
-    const changedStudentGroup = await this.studentRepository.update(
+    return await this.studentRepository.update(
       { ...changeStudentGroupDto },
       {
         where: { id, company_id: changeStudentGroupDto.company_id },
         returning: true,
       },
     );
-    return changedStudentGroup;
   }
 
   async getAllStudents(query: GetCompanyIdDto) {
@@ -103,11 +111,10 @@ export class StudentsService {
   }
 
   async findOneStudent(findOneStudentDto: IdAndCompanyIdDto): Promise<Student> {
-    const student = await this.findOne(
+    return await this.findOne(
       findOneStudentDto.id,
       findOneStudentDto.company_id,
     );
-    return student;
   }
 
   async findOne(id: string, company_id: string): Promise<Student> {
@@ -135,10 +142,15 @@ export class StudentsService {
     avatarName,
     company_id,
   ): Promise<[number, Student[]]> {
-    const createdAvatar = await this.studentRepository.update(
+    const getPreviousAvatarPath = await this.findOne(id, company_id);
+
+    if (getPreviousAvatarPath.avatar_path) {
+      await this.deleteAvatar(getPreviousAvatarPath.avatar_path);
+    }
+
+    return await this.studentRepository.update(
       { avatar_path: avatarName },
       { where: { id, company_id }, returning: true },
     );
-    return createdAvatar;
   }
 }

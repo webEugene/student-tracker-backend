@@ -1,10 +1,5 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import {
-  ApiBadRequestResponse,
-  ApiOperation,
-  ApiResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthLoginDto } from './dto/auth-login.dto';
 import { AuthRegisterDto } from './dto/auth-register.dto';
@@ -19,7 +14,7 @@ export class AuthController {
     return await this.authService.login(loginDto);
   }
   @Post('/register')
-  registration(@Body() userDto: AuthRegisterDto) {
-    return this.authService.registration(userDto);
+  registration(@Body() adminDto: AuthRegisterDto) {
+    return this.authService.registration(adminDto);
   }
 }

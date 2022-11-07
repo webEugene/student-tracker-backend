@@ -10,10 +10,10 @@ module.exports = {
         type: Sequelize.UUID,
         primaryKey: true,
       },
-      roleId: {
+      role_id: {
         type: Sequelize.UUID,
       },
-      userId: {
+      user_id: {
         type: Sequelize.UUID,
       },
       createdAt: {

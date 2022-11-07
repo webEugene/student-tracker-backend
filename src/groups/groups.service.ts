@@ -43,9 +43,7 @@ export class GroupsService {
     });
 
     if (!groups) {
-      throw new NotFoundException({
-        message: ['Groups not found.'],
-      });
+      return [];
     }
 
     return groups;
@@ -59,9 +57,7 @@ export class GroupsService {
     });
 
     if (!groups) {
-      throw new NotFoundException({
-        message: ['Groups not found.'],
-      });
+      return [];
     }
 
     return groups;

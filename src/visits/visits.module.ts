@@ -8,7 +8,7 @@ import { AuthModule } from '../auth/auth.module';
 @Module({
   providers: [VisitsService],
   controllers: [VisitsController],
-  exports: [VisitsService],
   imports: [SequelizeModule.forFeature([Visits]), forwardRef(() => AuthModule)],
+  exports: [VisitsService],
 })
 export class VisitsModule {}

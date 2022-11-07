@@ -24,4 +24,12 @@ export class CreateCameVisitDto {
   })
   @IsNotEmpty()
   readonly brought: number;
+
+  @ApiProperty({
+    example: '994ba8ac-a052-4194-805b-589204b45716',
+    description: 'Company uuid',
+  })
+  @IsUUID()
+  @IsNotEmpty()
+  readonly company_id: string;
 }

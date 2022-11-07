@@ -1,5 +1,5 @@
 import { IsISO8601, IsNotEmpty, IsUUID } from 'class-validator';
-import {ApiProperty} from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateVisitDto {
   @ApiProperty({
@@ -27,4 +27,12 @@ export class UpdateVisitDto {
 
   @IsNotEmpty()
   readonly took: number;
+
+  @ApiProperty({
+    example: '994ba8ac-a052-4194-805b-589204b45716',
+    description: 'Company uuid',
+  })
+  @IsUUID()
+  @IsNotEmpty()
+  readonly company_id: string;
 }
