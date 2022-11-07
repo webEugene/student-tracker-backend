@@ -1,5 +1,6 @@
 import { diskStorage } from 'multer';
 import path = require('path');
+import { v4 as uuidv4 } from 'uuid';
 
 type validFileExtension = 'png' | 'jpg' | 'jpeg' | 'gif';
 type validMimeType = 'image/png' | 'image/jpg' | 'image/jpeg' | 'image/gif';
@@ -11,14 +12,21 @@ const validMimeType: validMimeType[] = [
   'image/jpeg',
   'image/gif',
 ];
-
+// TODO Rewrite saving avatar
 export const avatarStorage = {
   storage: diskStorage({
     destination: './uploads/profileImages',
     filename: (req, file, cb) => {
-      const filename: string = path
-        .parse(file.originalname)
-        .name.replace(/\s/g, '');
+      const originalName: string = file.originalname
+        .toLowerCase()
+        .split(' ')
+        .join('-');
+      const filename: string =
+        path.parse(originalName).name.replace(/\s/g, '') +
+        '_' +
+        req.param.id +
+        '_uu_' +
+        req.query.company_id;
       const extension: string = path.parse(file.originalname).ext;
 
       cb(null, `${filename}${extension}`);

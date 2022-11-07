@@ -107,7 +107,10 @@ export class Student extends Model<Student, IStudentCreationAttrs> {
   @BelongsTo(() => Group)
   group: Group;
 
-  @HasMany(() => Visits)
+  @HasMany(() => Visits, {
+    onDelete: 'CASCADE',
+    hooks: true,
+  })
   visits: [];
 
   @ApiProperty({

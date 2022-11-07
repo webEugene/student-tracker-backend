@@ -33,6 +33,9 @@ module.exports = {
       student_id: {
         type: Sequelize.UUID,
       },
+      company_id: {
+        type: Sequelize.UUID,
+      },
       createdAt: {
         type: Sequelize.DATE,
         defaultValue: null,

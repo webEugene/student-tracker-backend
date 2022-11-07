@@ -10,6 +10,7 @@ import { AuthModule } from '../auth/auth.module';
 import { TeachersModule } from '../teachers/teachers.module';
 import { GroupsModule } from '../groups/groups.module';
 import { StudentsModule } from '../students/students.module';
+import { VisitsModule } from '../visits/visits.module';
 
 @Module({
   controllers: [UsersController],
@@ -20,6 +21,7 @@ import { StudentsModule } from '../students/students.module';
     TeachersModule,
     GroupsModule,
     StudentsModule,
+    VisitsModule,
     forwardRef(() => AuthModule),
   ],
   exports: [UsersService],

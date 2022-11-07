@@ -11,6 +11,7 @@ import { Group } from '../groups/groups.model';
 import { User } from '../users/users.model';
 import { Student } from '../students/students.model';
 import { Teacher } from '../teachers/teachers.model';
+import { Visits } from '../visits/visits.model';
 interface ICompanyAttr {
   company: string;
 }
@@ -36,15 +37,30 @@ export class Company extends Model<Company, ICompanyAttr> {
   @Column({ type: DataType.STRING, allowNull: false, unique: true })
   company: string;
 
-  @HasMany(() => Group)
+  @HasMany(() => Teacher, {
+    onDelete: 'CASCADE',
+    hooks: true,
+  })
+  teachers: Teacher[];
+
+  @HasMany(() => Student, {
+    onDelete: 'CASCADE',
+    hooks: true,
+  })
+  students: Student[];
+
+  @HasMany(() => Visits, {
+    onDelete: 'CASCADE',
+    hooks: true,
+  })
+  visits: Visits[];
+
+  @HasMany(() => Group, {
+    onDelete: 'CASCADE',
+    hooks: true,
+  })
   groups: Group[];
 
   @HasMany(() => User)
   users: User[];
-
-  @HasMany(() => Student)
-  students: Student[];
-
-  @HasMany(() => Teacher)
-  teachers: Teacher[];
 }

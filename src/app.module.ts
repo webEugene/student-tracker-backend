@@ -24,6 +24,7 @@ import { Company } from './company/company.model';
 import { CompanyModule } from './company/company.module';
 import { UsersController } from './users/users.controller';
 import { CompanyController } from './company/company.controller';
+import { GroupsController } from './groups/groups.controller';
 
 @Module({
   controllers: [
@@ -32,6 +33,7 @@ import { CompanyController } from './company/company.controller';
     TeachersController,
     UsersController,
     CompanyController,
+    GroupsController,
   ],
   providers: [],
   imports: [

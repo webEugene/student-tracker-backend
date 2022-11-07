@@ -1,4 +1,5 @@
 import {
+  BelongsTo,
   Column,
   DataType,
   DefaultScope,
@@ -8,6 +9,7 @@ import {
 } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
 import { Student } from '../students/students.model';
+import { Company } from '../company/company.model';
 
 @DefaultScope(() => ({
   attributes: { exclude: ['updatedAt'] },
@@ -76,6 +78,17 @@ export class Visits extends Model<Visits, IVisit> {
   @ForeignKey(() => Student)
   @Column({ type: DataType.UUID })
   student_id: string;
+
+  @ApiProperty({
+    example: '994ba8ac-a052-4194-805b-589204b45716',
+    description: 'Foreign key of company_id as UUID',
+  })
+  @Column({ type: DataType.UUID })
+  @ForeignKey(() => Company)
+  company_id: string;
+
+  @BelongsTo(() => Company, 'company_id')
+  company: Company;
 
   @ApiProperty({
     example: '2011-10-05T14:48:00.000Z',

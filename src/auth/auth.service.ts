@@ -38,19 +38,18 @@ export class AuthService {
       company: registerDto.company,
     });
 
-    const candidate = await this.userService.getUserByEmail(registerDto.email);
-    if (candidate) {
-      throw new HttpException('User already exists!', HttpStatus.BAD_REQUEST);
+    const newAdmin = await this.userService.getUserByEmail(registerDto.email);
+    if (newAdmin) {
+      throw new HttpException('Admin already exists!', HttpStatus.BAD_REQUEST);
     }
 
     const hashPassword = await bcrypt.hash(registerDto.password, 5);
-    const user = await this.userService.registerAdmin({
+    const admin = await this.userService.registerAdmin({
       ...registerDto,
       password: hashPassword,
       company_id: company.id,
     });
-
-    return this.generateToken(user);
+    return this.generateToken(admin);
   }
 
   private async generateToken(user: User) {
@@ -77,15 +76,15 @@ export class AuthService {
     const user = await this.userService.getUserByEmail(userDto.email);
 
     if (user === null) {
-      throw new UnauthorizedException({ massage: 'Incorrect email' });
+      throw new UnauthorizedException({ message: 'Incorrect email' });
     }
     const passwordEqual = await bcrypt.compare(userDto.password, user.password);
     if (!passwordEqual) {
-      throw new UnauthorizedException({ massage: 'Incorrect password' });
+      throw new UnauthorizedException({ message: 'Incorrect password' });
     }
     if (user === null && !passwordEqual) {
       throw new UnauthorizedException({
-        massage: 'Incorrect password and email',
+        message: 'Incorrect password and email',
       });
     }
 

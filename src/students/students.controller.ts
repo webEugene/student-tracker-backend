@@ -129,10 +129,9 @@ export class StudentsController {
     @UploadedFile() file,
     @Query() query: GetCompanyIdDto,
   ): Promise<[number, Student[]]> {
-    const avatarName = file.originalname.toLowerCase().split(' ').join('-');
     return await this.studentsService.uploadStudentAvatar(
       id,
-      avatarName,
+      file.filename,
       query.company_id,
     );
   }
