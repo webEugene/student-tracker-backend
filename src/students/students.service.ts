@@ -14,8 +14,7 @@ import { Teacher } from '../teachers/teachers.model';
 import { Op } from 'sequelize';
 import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
 import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
-import { access, unlink } from 'fs';
-import { constants } from 'node:fs';
+import { unlink } from 'fs';
 
 @Injectable()
 export class StudentsService {
@@ -42,11 +41,11 @@ export class StudentsService {
       deleteStudentDto.id,
       deleteStudentDto.company_id,
     );
-    await this.deleteAvatar(deletedStudent.avatar_path);
+    await this.deleteAvatarInFolder(deletedStudent.avatar_path);
     await deletedStudent.destroy();
   }
   // TODO: fix removing avatar
-  async deleteAvatar(avatar_path): Promise<void> {
+  async deleteAvatarInFolder(avatar_path): Promise<void> {
     const fullPath = `./uploads/profileImages/${avatar_path}`;
     unlink(fullPath, err => {
       return !err;
@@ -86,7 +85,7 @@ export class StudentsService {
     const year = date.getFullYear();
     const d = `${year}-${month}-${day}`;
 
-    const students = await this.studentRepository.findAll({
+    return await this.studentRepository.findAll({
       include: [
         {
           model: Group,
@@ -107,7 +106,6 @@ export class StudentsService {
       },
       order: [['id', 'DESC']],
     });
-    return students;
   }
 
   async findOneStudent(findOneStudentDto: IdAndCompanyIdDto): Promise<Student> {
@@ -139,17 +137,29 @@ export class StudentsService {
 
   async uploadStudentAvatar(
     id: string,
-    avatarName,
-    company_id,
+    avatarName: string,
+    company_id: string,
   ): Promise<[number, Student[]]> {
     const getPreviousAvatarPath = await this.findOne(id, company_id);
 
     if (getPreviousAvatarPath.avatar_path) {
-      await this.deleteAvatar(getPreviousAvatarPath.avatar_path);
+      await this.deleteAvatarInFolder(getPreviousAvatarPath.avatar_path);
     }
 
     return await this.studentRepository.update(
       { avatar_path: avatarName },
+      { where: { id, company_id }, returning: true },
+    );
+  }
+
+  async deleteStudentAvatar(
+    id: string,
+    avatarName: string,
+    company_id: string,
+  ): Promise<[number, Student[]]> {
+    console.log()
+    return await this.studentRepository.update(
+      { avatar_path: null },
       { where: { id, company_id }, returning: true },
     );
   }

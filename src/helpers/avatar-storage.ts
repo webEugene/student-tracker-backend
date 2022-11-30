@@ -17,16 +17,13 @@ export const avatarStorage = {
   storage: diskStorage({
     destination: './uploads/profileImages',
     filename: (req, file, cb) => {
-      const originalName: string = file.originalname
-        .toLowerCase()
-        .split(' ')
-        .join('-');
-      const filename: string =
-        path.parse(originalName).name.replace(/\s/g, '') +
-        '_' +
-        req.param.id +
-        '_uu_' +
-        req.query.company_id;
+      // const originalName: string = file.originalname
+      //   .toLowerCase()
+      //   .split(' ')
+      //   .join('-');
+      // path.parse(originalName).name.replace(/\s/g, '') +
+      // '_' +
+      const filename: string = req.params.id + '_uu_' + req.query.company_id;
       const extension: string = path.parse(file.originalname).ext;
 
       cb(null, `${filename}${extension}`);

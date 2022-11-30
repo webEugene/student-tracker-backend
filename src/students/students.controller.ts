@@ -35,6 +35,7 @@ import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student-dto';
 import { ChangeGroupDto } from './dto/change-group.dto';
 import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
+import { DeleteAvatarDto } from './dto/delete-avatar.dto';
 
 @ApiTags('Students')
 @Controller('students')
@@ -132,6 +133,19 @@ export class StudentsController {
     return await this.studentsService.uploadStudentAvatar(
       id,
       file.filename,
+      query.company_id,
+    );
+  }
+
+  @Delete('/delete-avatar/:id')
+  @ApiOperation({ summary: 'Delete student avatar' })
+  async deleteStudentAvatar(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query() query: DeleteAvatarDto,
+  ): Promise<[number, Student[]]> {
+    return await this.studentsService.deleteStudentAvatar(
+      id,
+      query.avatarName,
       query.company_id,
     );
   }
