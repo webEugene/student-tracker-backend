@@ -1,6 +1,5 @@
 import { diskStorage } from 'multer';
 import path = require('path');
-import { v4 as uuidv4 } from 'uuid';
 
 type validFileExtension = 'png' | 'jpg' | 'jpeg' | 'gif';
 type validMimeType = 'image/png' | 'image/jpg' | 'image/jpeg' | 'image/gif';
@@ -15,7 +14,7 @@ const validMimeType: validMimeType[] = [
 // TODO Rewrite saving avatar
 export const avatarStorage = {
   storage: diskStorage({
-    destination: './uploads/profileImages',
+    destination: `./uploads/profiles`,
     filename: (req, file, cb) => {
       // const originalName: string = file.originalname
       //   .toLowerCase()
@@ -23,6 +22,7 @@ export const avatarStorage = {
       //   .join('-');
       // path.parse(originalName).name.replace(/\s/g, '') +
       // '_' +
+
       const filename: string = req.params.id + '_uu_' + req.query.company_id;
       const extension: string = path.parse(file.originalname).ext;
 

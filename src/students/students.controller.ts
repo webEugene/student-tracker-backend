@@ -114,17 +114,17 @@ export class StudentsController {
   }
 
   @Patch('/upload-avatar/:id')
-  @ApiConsumes('multipart/form-data')
+  // @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Update student avatar' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        avatar_path: { type: 'string' },
-      },
-    },
-  })
-  @UseInterceptors(FileInterceptor('avatar_path', avatarStorage))
+  // @ApiBody({
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       avatar_path: { type: 'string' },
+  //     },
+  //   },
+  // })
+  // @UseInterceptors(FileInterceptor('avatar_path', avatarStorage))
   async uploadStudentAvatar(
     @Param('id', ParseUUIDPipe) id: string,
     @UploadedFile() file,
