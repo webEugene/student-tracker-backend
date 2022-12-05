@@ -25,6 +25,7 @@ import { CompanyModule } from './company/company.module';
 import { UsersController } from './users/users.controller';
 import { CompanyController } from './company/company.controller';
 import { GroupsController } from './groups/groups.controller';
+import { ImagesModule } from './images/images.module';
 
 @Module({
   controllers: [
@@ -35,7 +36,6 @@ import { GroupsController } from './groups/groups.controller';
     CompanyController,
     GroupsController,
   ],
-  providers: [],
   imports: [
     ConfigModule.forRoot({
       envFilePath: `.${process.env.NODE_ENV}.env`,
@@ -58,6 +58,7 @@ import { GroupsController } from './groups/groups.controller';
     VisitsModule,
     TeachersModule,
     CompanyModule,
+    ImagesModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       // exclude: ['/v1*'],

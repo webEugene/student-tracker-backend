@@ -5,6 +5,7 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { Company } from './company.model';
+import { unlink } from 'fs';
 
 export class CompanyService {
   constructor(
@@ -47,5 +48,12 @@ export class CompanyService {
         throw new InternalServerErrorException();
       }
     }
+  }
+
+  async deleteAvatars(avatar_path): Promise<void> {
+    const fullPath = `./uploads/profiles/${avatar_path}`;
+    unlink(fullPath, err => {
+      return !err;
+    });
   }
 }

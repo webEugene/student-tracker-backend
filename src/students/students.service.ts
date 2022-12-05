@@ -15,11 +15,13 @@ import { Op } from 'sequelize';
 import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
 import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
 import { unlink } from 'fs';
+import { ImagesService } from '../images/images.service';
 
 @Injectable()
 export class StudentsService {
   constructor(
     @InjectModel(Student) private studentRepository: typeof Student,
+    private imagesService: ImagesService,
   ) {}
 
   async createStudent(dto: CreateStudentDto): Promise<Student> {
@@ -44,7 +46,6 @@ export class StudentsService {
     await this.deleteAvatarInFolder(deletedStudent.avatar_path);
     await deletedStudent.destroy();
   }
-  // TODO: fix removing avatar
   async deleteAvatarInFolder(avatar_path): Promise<void> {
     const fullPath = `./uploads/profileImages/${avatar_path}`;
     unlink(fullPath, err => {
@@ -137,17 +138,21 @@ export class StudentsService {
 
   async uploadStudentAvatar(
     id: string,
-    avatarName: string,
+    avatar_name: string,
     company_id: string,
   ): Promise<[number, Student[]]> {
     const getPreviousAvatarPath = await this.findOne(id, company_id);
-
+    const saveImageAvatarToStorage = this.imagesService.saveAvatarToStorage({
+      id,
+      company_id,
+      avatar_name,
+    });
     if (getPreviousAvatarPath.avatar_path) {
       await this.deleteAvatarInFolder(getPreviousAvatarPath.avatar_path);
     }
 
     return await this.studentRepository.update(
-      { avatar_path: avatarName },
+      { avatar_path: avatar_name },
       { where: { id, company_id }, returning: true },
     );
   }
@@ -157,7 +162,7 @@ export class StudentsService {
     avatarName: string,
     company_id: string,
   ): Promise<[number, Student[]]> {
-    console.log()
+    await this.deleteAvatarInFolder(avatarName);
     return await this.studentRepository.update(
       { avatar_path: null },
       { where: { id, company_id }, returning: true },
