@@ -14,6 +14,7 @@ import { TeachersService } from '../teachers/teachers.service';
 import { GroupsService } from '../groups/groups.service';
 import { StudentsService } from '../students/students.service';
 import { VisitsService } from '../visits/visits.service';
+import { ImagesService } from '../images/images.service';
 
 @Injectable()
 export class UsersService {
@@ -24,6 +25,7 @@ export class UsersService {
     private groupsService: GroupsService,
     private studentsService: StudentsService,
     private visitsService: VisitsService,
+    private imagesService: ImagesService,
   ) {}
 
   async registerAdmin(dto: AuthRegisterDto): Promise<User> {
@@ -152,7 +154,10 @@ export class UsersService {
     });
     // Delete all users created admin and current component
     await User.destroy({ where: { id: deleteEverything.id } });
-    // Delete avatars
+    // Delete company folder where avatars had been saved!
+    await this.imagesService.removeCompanyAvatarFolder(
+      deleteEverything.company_id,
+    );
     await User.destroy({ where: { id: deleteEverything.id } });
 
     await Company.destroy({ where: { id: deleteEverything.company_id } });

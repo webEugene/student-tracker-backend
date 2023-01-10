@@ -4,6 +4,7 @@ import { TeachersController } from './teachers.controller';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthModule } from '../auth/auth.module';
 import { Teacher } from './teachers.model';
+import { ImagesModule } from '../images/images.module';
 
 @Module({
   providers: [TeachersService],
@@ -12,6 +13,7 @@ import { Teacher } from './teachers.model';
   imports: [
     SequelizeModule.forFeature([Teacher]),
     forwardRef(() => AuthModule),
+    ImagesModule,
   ],
 })
 export class TeachersModule {}

@@ -34,6 +34,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { DeleteAvatarDto } from './dto/delete-avatar.dto';
 
 @ApiBearerAuth('defaultBearerAuth')
 @ApiTags('Teachers')
@@ -119,10 +120,22 @@ export class TeachersController {
     @UploadedFile() file,
     @Query() query: GetCompanyIdDto,
   ): Promise<[number, Teacher[]]> {
-    const avatarName = file.originalname.toLowerCase().split(' ').join('-');
     return await this.teacherService.uploadTeacherAvatar(
       id,
-      avatarName,
+      query.company_id,
+      file.originalname,
+    );
+  }
+
+  @Delete('/delete-avatar/:id')
+  @ApiOperation({ summary: 'Delete teacher avatar' })
+  async deleteStudentAvatar(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query() query: DeleteAvatarDto,
+  ): Promise<[number, Teacher[]]> {
+    return await this.teacherService.deleteTeacherAvatar(
+      id,
+      query.avatar_path,
       query.company_id,
     );
   }

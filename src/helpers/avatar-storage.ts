@@ -1,36 +1,19 @@
 import { diskStorage } from 'multer';
 import path = require('path');
+import { imageFileFilter } from '../utils/file-upload.utils';
 
-type validFileExtension = 'png' | 'jpg' | 'jpeg' | 'gif';
-type validMimeType = 'image/png' | 'image/jpg' | 'image/jpeg' | 'image/gif';
-
-const validFileExtension: validFileExtension[] = ['png', 'jpg', 'jpeg', 'gif'];
-const validMimeType: validMimeType[] = [
-  'image/png',
-  'image/jpg',
-  'image/jpeg',
-  'image/gif',
-];
-// TODO Rewrite saving avatar
+// https://github.com/TannerGabriel/Blog/blob/091cbf99bc9409629e1ab717ca8ec405c421d6d4/nest-file-uploading/src/utils/file-upload.utils.ts
 export const avatarStorage = {
   storage: diskStorage({
-    destination: `./uploads/profiles`,
+    destination: (req, file, cb) => {
+      cb(null, `./uploads/profiles/${req.query.company_id}`);
+    },
     filename: (req, file, cb) => {
-      // const originalName: string = file.originalname
-      //   .toLowerCase()
-      //   .split(' ')
-      //   .join('-');
-      // path.parse(originalName).name.replace(/\s/g, '') +
-      // '_' +
-
-      const filename: string = req.params.id + '_uu_' + req.query.company_id;
+      const filename: string = req.params.id;
       const extension: string = path.parse(file.originalname).ext;
 
       cb(null, `${filename}${extension}`);
     },
   }),
-  fileFilter: (req, file, cb) => {
-    const allowedMimeTypes: validMimeType[] = validMimeType;
-    allowedMimeTypes.includes(file.mimetype) ? cb(null, true) : cb(null, false);
-  },
+  fileFilter: imageFileFilter,
 };
