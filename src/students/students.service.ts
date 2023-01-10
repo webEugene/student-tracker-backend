@@ -3,25 +3,29 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
+import path = require('path');
+// Sequelize
 import { InjectModel } from '@nestjs/sequelize';
+import { Op } from 'sequelize';
+// Models
 import { Student } from './students.model';
-import { CreateStudentDto } from './dto/create-student.dto';
-import { UpdateStudentDto } from './dto/update-student-dto';
-import { ChangeGroupDto } from './dto/change-group.dto';
 import { Group } from '../groups/groups.model';
 import { Visits } from '../visits/visits.model';
 import { Teacher } from '../teachers/teachers.model';
-import { Op } from 'sequelize';
+// Services
+import { ImagesService } from '../images/images.service';
+// DTOs
 import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
 import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
-import { unlink } from 'fs';
-import { ImagesService } from '../images/images.service';
+import { CreateStudentDto } from './dto/create-student.dto';
+import { UpdateStudentDto } from './dto/update-student-dto';
+import { ChangeGroupDto } from './dto/change-group.dto';
 
 @Injectable()
 export class StudentsService {
   constructor(
     @InjectModel(Student) private studentRepository: typeof Student,
-    private imagesService: ImagesService,
+    private imageService: ImagesService,
   ) {}
 
   async createStudent(dto: CreateStudentDto): Promise<Student> {
@@ -43,14 +47,11 @@ export class StudentsService {
       deleteStudentDto.id,
       deleteStudentDto.company_id,
     );
-    await this.deleteAvatarInFolder(deletedStudent.avatar_path);
+    await this.imageService.deleteAvatar(
+      deleteStudentDto.company_id,
+      deletedStudent.avatar_path,
+    );
     await deletedStudent.destroy();
-  }
-  async deleteAvatarInFolder(avatar_path): Promise<void> {
-    const fullPath = `./uploads/profileImages/${avatar_path}`;
-    unlink(fullPath, err => {
-      return !err;
-    });
   }
 
   async updateStudent(
@@ -138,31 +139,41 @@ export class StudentsService {
 
   async uploadStudentAvatar(
     id: string,
-    avatar_name: string,
     company_id: string,
+    avatar_name: string,
   ): Promise<[number, Student[]]> {
-    const getPreviousAvatarPath = await this.findOne(id, company_id);
-    const saveImageAvatarToStorage = this.imagesService.saveAvatarToStorage({
-      id,
-      company_id,
-      avatar_name,
-    });
-    if (getPreviousAvatarPath.avatar_path) {
-      await this.deleteAvatarInFolder(getPreviousAvatarPath.avatar_path);
-    }
+    const extension: string = path.parse(avatar_name).ext;
+    const updatedAvatarName = `${id}${extension}`;
 
-    return await this.studentRepository.update(
-      { avatar_path: avatar_name },
-      { where: { id, company_id }, returning: true },
+    const getCurrentAvatarPath = await this.findOne(id, company_id);
+    const ifFileExistInFolder = this.imageService.checkForExistence(
+      company_id,
+      getCurrentAvatarPath.avatar_path,
     );
+    if (getCurrentAvatarPath.avatar_path && !ifFileExistInFolder) {
+      return await this.studentRepository.update(
+        { avatar_path: updatedAvatarName },
+        { where: { id, company_id }, returning: true },
+      );
+    } else {
+      await this.imageService.deleteAvatar(
+        company_id,
+        getCurrentAvatarPath.avatar_path,
+      );
+
+      return await this.studentRepository.update(
+        { avatar_path: updatedAvatarName },
+        { where: { id, company_id }, returning: true },
+      );
+    }
   }
 
   async deleteStudentAvatar(
     id: string,
-    avatarName: string,
+    avatar_path: string,
     company_id: string,
   ): Promise<[number, Student[]]> {
-    await this.deleteAvatarInFolder(avatarName);
+    await this.imageService.deleteAvatar(company_id, avatar_path);
     return await this.studentRepository.update(
       { avatar_path: null },
       { where: { id, company_id }, returning: true },

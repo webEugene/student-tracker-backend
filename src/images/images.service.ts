@@ -1,30 +1,61 @@
 import { Injectable } from '@nestjs/common';
-
-interface ISaveAvatarInfo {
-  id: string;
-  company_id: string;
-  avatar_name: string;
-  deep_folder?: string;
-}
+import { mkdir, constants, promises, unlink, rm } from 'fs';
+import path = require('path');
 
 @Injectable()
 export class ImagesService {
-  async saveAvatarToStorage(ISaveAvatarInfo): Promise<boolean> {
-    // const filename: string = req.params.id + '_uu_' + req.query.company_id;
-    // const extension: string = path.parse(file.originalname).ext;
+  private readonly PROFILES_AVATARS_DIR = './uploads/profiles/';
 
-    return true;
+  deleteAvatar(companyId, avatarPath) {
+    const fullPath = `${this.PROFILES_AVATARS_DIR}/${companyId}/${avatarPath}`;
+    unlink(fullPath, err => {
+      return !err;
+    });
   }
 
-  async deleteImageAvatar() {
-    return true;
+  removeCompanyAvatarFolder(companyId) {
+    rm(
+      `${this.PROFILES_AVATARS_DIR}/${companyId}`,
+      { recursive: true, force: true },
+      err => {
+        if (err) {
+          throw err;
+        }
+      },
+    );
   }
 
-  async deleteAllCompanyImageAvatars() {
-    return true;
+  createImageName(forSaveAvatarInfo): string {
+    const filename: string =
+      forSaveAvatarInfo.id + '_uu_' + forSaveAvatarInfo.company_id;
+    const extension: string = path.parse(forSaveAvatarInfo.avatar_name).ext;
+
+    return `${filename}${extension}`;
   }
 
-  async createImageAvatar() {
-    return true;
+  createDirectory(folderName: string): void | never {
+    const directoryExist = this.checkForExistence(folderName);
+    if (!directoryExist) {
+      mkdir(
+        `${this.PROFILES_AVATARS_DIR}/${folderName}`,
+        { recursive: true },
+        err => {
+          if (err) throw new Error('Crashed while creating folder');
+        },
+      );
+    }
+  }
+
+  checkForExistence(companyId, avatarPath?: string): boolean {
+    let isExist = false;
+    const fullPath = avatarPath
+      ? `${this.PROFILES_AVATARS_DIR}/${companyId}/${avatarPath}`
+      : `${this.PROFILES_AVATARS_DIR}/${companyId}`;
+    promises
+      .access(fullPath, constants.R_OK)
+      .then(() => (isExist = true))
+      .catch(() => (isExist = false));
+
+    return isExist;
   }
 }

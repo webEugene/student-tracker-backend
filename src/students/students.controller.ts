@@ -114,17 +114,17 @@ export class StudentsController {
   }
 
   @Patch('/upload-avatar/:id')
-  // @ApiConsumes('multipart/form-data')
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Update student avatar' })
-  // @ApiBody({
-  //   schema: {
-  //     type: 'object',
-  //     properties: {
-  //       avatar_path: { type: 'string' },
-  //     },
-  //   },
-  // })
-  // @UseInterceptors(FileInterceptor('avatar_path', avatarStorage))
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        avatar_path: { type: 'string' },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('avatar_path', avatarStorage))
   async uploadStudentAvatar(
     @Param('id', ParseUUIDPipe) id: string,
     @UploadedFile() file,
@@ -132,8 +132,8 @@ export class StudentsController {
   ): Promise<[number, Student[]]> {
     return await this.studentsService.uploadStudentAvatar(
       id,
-      file.filename,
       query.company_id,
+      file.originalname,
     );
   }
 
@@ -145,7 +145,7 @@ export class StudentsController {
   ): Promise<[number, Student[]]> {
     return await this.studentsService.deleteStudentAvatar(
       id,
-      query.avatarName,
+      query.avatar_path,
       query.company_id,
     );
   }

@@ -11,6 +11,7 @@ import { TeachersModule } from '../teachers/teachers.module';
 import { GroupsModule } from '../groups/groups.module';
 import { StudentsModule } from '../students/students.module';
 import { VisitsModule } from '../visits/visits.module';
+import { ImagesModule } from '../images/images.module';
 
 @Module({
   controllers: [UsersController],
@@ -22,6 +23,7 @@ import { VisitsModule } from '../visits/visits.module';
     GroupsModule,
     StudentsModule,
     VisitsModule,
+    ImagesModule,
     forwardRef(() => AuthModule),
   ],
   exports: [UsersService],
