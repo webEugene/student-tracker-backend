@@ -8,10 +8,10 @@ async function bootstrap() {
   app.setGlobalPrefix('v1');
   app.useGlobalPipes(new ValidationPipe());
   const config = new DocumentBuilder()
-    .setTitle('Student tracker backend')
-    .setDescription('Student tracker backend')
+    .setTitle('Pupils tracker backend')
+    .setDescription('Pupils tracker backend')
     .setVersion('1.0.0')
-    .addTag('students-tracker')
+    .addTag('pupils-tracker')
     .addBearerAuth(undefined, 'defaultBearerAuth')
     .build();
   const document = SwaggerModule.createDocument(app, config);

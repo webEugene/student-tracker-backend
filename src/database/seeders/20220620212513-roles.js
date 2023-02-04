@@ -14,14 +14,15 @@ module.exports = {
       {
         id: Sequelize.UUID,
         value: 'admin',
-        description: 'manage all',
+        description: 'As Admin, you are allowed to manage all application',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         id: Sequelize.UUID,
         value: 'user',
-        description: 'manage not all',
+        description:
+          'As User you are allowed only see some pages and set time for pupils',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
