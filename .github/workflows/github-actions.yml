@@ -1,4 +1,4 @@
-name: Pupils Tracker Frontend Actions
+name: Pupil Tracker Frontend Actions
 on:
   push:
     branches: [ main, master ]
@@ -7,9 +7,6 @@ on:
 jobs:
   build-prod:
     runs-on: ubuntu-latest
-#      services:
-#        postgres:
-#          image
     strategy:
       matrix:
         node-version: [ 16.x ]
@@ -22,11 +19,3 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
         run: npm ci
-#        - name: Use Node.js ${{ matrix.node-version }}
-#          uses: actions/setup-node@v3
-#          with:
-#            node-version: '16.x'
-#        - name: Install dependencies
-#            run: npm ci
-#        - name: Build project
-#          run: npm run start:prod --if-present
