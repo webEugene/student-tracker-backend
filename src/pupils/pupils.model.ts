@@ -13,7 +13,7 @@ import { Group } from '../groups/groups.model';
 import { Visits } from '../visits/visits.model';
 import { Company } from '../company/company.model';
 
-interface IStudentCreationAttrs {
+interface IPupilCreationAttrs {
   name: string;
   surname: string;
   mobilePhone: string;
@@ -28,8 +28,8 @@ interface IStudentCreationAttrs {
 @DefaultScope(() => ({
   attributes: { exclude: ['group_id', 'createdAt', 'updatedAt'] },
 }))
-@Table({ tableName: 'students' })
-export class Student extends Model<Student, IStudentCreationAttrs> {
+@Table({ tableName: 'pupils' })
+export class Pupil extends Model<Pupil, IPupilCreationAttrs> {
   @ApiProperty({
     example: '994ba8ac-a052-4194-805b-589204b45716',
     description: 'Primary Key UUID',
@@ -41,14 +41,14 @@ export class Student extends Model<Student, IStudentCreationAttrs> {
   })
   id: string;
 
-  @ApiProperty({ example: 'Ivan', description: 'Student name' })
+  @ApiProperty({ example: 'Ivan', description: 'Pupil name' })
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
   name: string;
 
-  @ApiProperty({ example: 'Ivanov', description: 'Student surname' })
+  @ApiProperty({ example: 'Ivanov', description: 'Pupil surname' })
   @Column({
     type: DataType.STRING,
     allowNull: false,
@@ -71,7 +71,7 @@ export class Student extends Model<Student, IStudentCreationAttrs> {
 
   @ApiProperty({
     example: '2011-10-05T14:48:00.000Z',
-    description: 'Student birthday',
+    description: 'Pupil birthday',
   })
   @Column({
     type: DataType.DATE,
@@ -79,7 +79,7 @@ export class Student extends Model<Student, IStudentCreationAttrs> {
   })
   birthday: string;
 
-  @ApiProperty({ example: 'image.png', description: 'Student avatar' })
+  @ApiProperty({ example: 'image.png', description: 'Pupil avatar' })
   @Column({
     type: DataType.STRING,
     allowNull: true,
@@ -88,7 +88,7 @@ export class Student extends Model<Student, IStudentCreationAttrs> {
 
   @ApiProperty({
     example: 'email@email.com',
-    description: "Student's parent's email",
+    description: "Pupil's parent's email",
   })
   @Column({
     type: DataType.STRING,

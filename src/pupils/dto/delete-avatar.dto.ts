@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, IsUUID } from 'class-validator';
 
 export class DeleteAvatarDto {
-  @ApiProperty({ example: 'image.png', description: 'Student avatar' })
+  @ApiProperty({ example: 'image.png', description: 'Pupil avatar' })
   @IsNotEmpty()
   @IsString()
   readonly avatar_path: string;

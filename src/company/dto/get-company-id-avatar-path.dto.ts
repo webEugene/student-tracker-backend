@@ -10,7 +10,7 @@ export class GetCompanyIdAvatarDto {
   @IsNotEmpty()
   readonly company_id: string;
 
-  @ApiProperty({ example: 'image.png', description: 'Student avatar' })
+  @ApiProperty({ example: 'image.png', description: 'Pupil avatar' })
   @IsNotEmpty()
   @IsString()
   @IsOptional()

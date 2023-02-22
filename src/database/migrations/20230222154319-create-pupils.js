@@ -5,7 +5,7 @@ module.exports = {
     /**
      * Add altering commands here.
      */
-    await queryInterface.createTable('students', {
+    await queryInterface.createTable('pupils', {
       id: {
         type: Sequelize.UUID,
         primaryKey: true,
@@ -57,6 +57,6 @@ module.exports = {
     /**
      * Add reverting commands here.
      */
-    await queryInterface.dropTable('students');
+    await queryInterface.dropTable('pupils');
   },
 };
