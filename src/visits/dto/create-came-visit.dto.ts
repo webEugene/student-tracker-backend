@@ -4,11 +4,11 @@ import { ApiProperty } from '@nestjs/swagger';
 export class CreateCameVisitDto {
   @ApiProperty({
     example: '994ba8ac-a052-4194-805b-589204b45716',
-    description: 'student uuid',
+    description: 'pupil uuid',
   })
   @IsUUID()
   @IsNotEmpty()
-  readonly student_id: string;
+  readonly pupil_id: string;
 
   @ApiProperty({
     example: '2011-10-05T14:48:00.000Z',

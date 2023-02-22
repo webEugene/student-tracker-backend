@@ -4,11 +4,11 @@ import { IsNotEmpty, IsUUID } from 'class-validator';
 export class DeleteVisitDto {
   // @ApiProperty({
   //   example: '994ba8ac-a052-4194-805b-589204b45716',
-  //   description: 'Student uuid',
+  //   description: 'pupil uuid',
   // })
   // @IsUUID()
   // @IsNotEmpty()
-  // readonly student_id: string;
+  // readonly pupil_id: string;
 
   @ApiProperty({
     example: '994ba8ac-a052-4194-805b-589204b45716',

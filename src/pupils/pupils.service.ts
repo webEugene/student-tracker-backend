@@ -8,7 +8,7 @@ import path = require('path');
 import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 // Models
-import { Student } from './students.model';
+import { Pupil } from './pupils.model';
 import { Group } from '../groups/groups.model';
 import { Visits } from '../visits/visits.model';
 import { Teacher } from '../teachers/teachers.model';
@@ -17,24 +17,24 @@ import { ImagesService } from '../images/images.service';
 // DTOs
 import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
 import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
-import { CreateStudentDto } from './dto/create-student.dto';
-import { UpdateStudentDto } from './dto/update-student-dto';
+import { CreatePupilDto } from './dto/create-pupil.dto';
+import { UpdatePupilDto } from './dto/update-pupil-dto';
 import { ChangeGroupDto } from './dto/change-group.dto';
 
 @Injectable()
-export class StudentsService {
+export class PupilsService {
   constructor(
-    @InjectModel(Student) private studentRepository: typeof Student,
+    @InjectModel(Pupil) private pupilRepository: typeof Pupil,
     private imageService: ImagesService,
   ) {}
 
-  async createStudent(dto: CreateStudentDto): Promise<Student> {
+  async createPupil(dto: CreatePupilDto): Promise<Pupil> {
     try {
-      return await this.studentRepository.create(dto);
+      return await this.pupilRepository.create(dto);
     } catch (error) {
       if (error.code === '23505') {
         throw new ConflictException({
-          message: ['Student is already exists'],
+          message: ['Pupil is already exists'],
         });
       } else {
         throw new InternalServerErrorException();
@@ -42,52 +42,52 @@ export class StudentsService {
     }
   }
 
-  async deleteStudent(deleteStudentDto: IdAndCompanyIdDto): Promise<void> {
-    const deletedStudent = await this.findOne(
-      deleteStudentDto.id,
-      deleteStudentDto.company_id,
+  async deletePupil(deletePupilDto: IdAndCompanyIdDto): Promise<void> {
+    const deletedPupil = await this.findOne(
+      deletePupilDto.id,
+      deletePupilDto.company_id,
     );
     await this.imageService.deleteAvatar(
-      deleteStudentDto.company_id,
-      deletedStudent.avatar_path,
+      deletePupilDto.company_id,
+      deletedPupil.avatar_path,
     );
-    await deletedStudent.destroy();
+    await deletedPupil.destroy();
   }
 
-  async updateStudent(
+  async updatePupil(
     id: string,
-    updateStudentDto: UpdateStudentDto,
-  ): Promise<[number, Student[]]> {
-    return await this.studentRepository.update(
-      { ...updateStudentDto },
+    updatePupilDto: UpdatePupilDto,
+  ): Promise<[number, Pupil[]]> {
+    return await this.pupilRepository.update(
+      { ...updatePupilDto },
       {
-        where: { id, company_id: updateStudentDto.company_id },
+        where: { id, company_id: updatePupilDto.company_id },
         returning: true,
       },
     );
   }
 
-  async changeStudentGroup(
+  async changePupilGroup(
     id: string,
-    changeStudentGroupDto: ChangeGroupDto,
-  ): Promise<[number, Student[]]> {
-    return await this.studentRepository.update(
-      { ...changeStudentGroupDto },
+    changePupilGroupDto: ChangeGroupDto,
+  ): Promise<[number, Pupil[]]> {
+    return await this.pupilRepository.update(
+      { ...changePupilGroupDto },
       {
-        where: { id, company_id: changeStudentGroupDto.company_id },
+        where: { id, company_id: changePupilGroupDto.company_id },
         returning: true,
       },
     );
   }
 
-  async getAllStudents(query: GetCompanyIdDto) {
+  async getAllPupils(query: GetCompanyIdDto) {
     const date = new Date();
     const day = (date.getDate() < 10 ? '0' : '') + date.getDate();
     const month = (date.getMonth() + 1 < 10 ? '0' : '') + (date.getMonth() + 1);
     const year = date.getFullYear();
     const d = `${year}-${month}-${day}`;
 
-    return await this.studentRepository.findAll({
+    return await this.pupilRepository.findAll({
       include: [
         {
           model: Group,
@@ -110,15 +110,12 @@ export class StudentsService {
     });
   }
 
-  async findOneStudent(findOneStudentDto: IdAndCompanyIdDto): Promise<Student> {
-    return await this.findOne(
-      findOneStudentDto.id,
-      findOneStudentDto.company_id,
-    );
+  async findOnePupil(findOnePupilDto: IdAndCompanyIdDto): Promise<Pupil> {
+    return await this.findOne(findOnePupilDto.id, findOnePupilDto.company_id);
   }
 
-  async findOne(id: string, company_id: string): Promise<Student> {
-    return this.studentRepository.findOne({
+  async findOne(id: string, company_id: string): Promise<Pupil> {
+    return this.pupilRepository.findOne({
       include: [
         {
           model: Group,
@@ -137,11 +134,11 @@ export class StudentsService {
     });
   }
 
-  async uploadStudentAvatar(
+  async uploadPupilAvatar(
     id: string,
     company_id: string,
     avatar_name: string,
-  ): Promise<[number, Student[]]> {
+  ): Promise<[number, Pupil[]]> {
     const extension: string = path.parse(avatar_name).ext;
     const updatedAvatarName = `${id}${extension}`;
 
@@ -151,7 +148,7 @@ export class StudentsService {
       getCurrentAvatarPath.avatar_path,
     );
     if (getCurrentAvatarPath.avatar_path && !ifFileExistInFolder) {
-      return await this.studentRepository.update(
+      return await this.pupilRepository.update(
         { avatar_path: updatedAvatarName },
         { where: { id, company_id }, returning: true },
       );
@@ -161,20 +158,20 @@ export class StudentsService {
         getCurrentAvatarPath.avatar_path,
       );
 
-      return await this.studentRepository.update(
+      return await this.pupilRepository.update(
         { avatar_path: updatedAvatarName },
         { where: { id, company_id }, returning: true },
       );
     }
   }
 
-  async deleteStudentAvatar(
+  async deletePupilAvatar(
     id: string,
     avatar_path: string,
     company_id: string,
-  ): Promise<[number, Student[]]> {
+  ): Promise<[number, Pupil[]]> {
     await this.imageService.deleteAvatar(company_id, avatar_path);
-    return await this.studentRepository.update(
+    return await this.pupilRepository.update(
       { avatar_path: null },
       { where: { id, company_id }, returning: true },
     );

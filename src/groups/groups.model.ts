@@ -10,7 +10,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
-import { Student } from '../students/students.model';
+import { Pupil } from '../pupils/pupils.model';
 import { Teacher } from '../teachers/teachers.model';
 import { Company } from '../company/company.model';
 
@@ -39,8 +39,8 @@ export class Group extends Model<Group, IGroupAttr> {
   @Column({ type: DataType.STRING, allowNull: false, unique: true })
   name: string;
 
-  @HasMany(() => Student)
-  students: Student[];
+  @HasMany(() => Pupil)
+  pupils: Pupil[];
 
   @HasOne(() => Teacher, {
     onUpdate: 'RESTRICT',

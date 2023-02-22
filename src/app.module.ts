@@ -7,10 +7,10 @@ import { RolesModule } from './roles/roles.module';
 import { Role } from './roles/roles.model';
 import { UserRoles } from './roles/user-roles.model';
 import { AuthModule } from './auth/auth.module';
-import { StudentsController } from './students/students.controller';
-import { StudentsModule } from './students/students.module';
+import { PupilsController } from './pupils/pupils.controller';
+import { PupilsModule } from './pupils/pupils.module';
 import { GroupsModule } from './groups/groups.module';
-import { Student } from './students/students.model';
+import { Pupil } from './pupils/pupils.model';
 import { Group } from './groups/groups.model';
 import { Visits } from './visits/visits.model';
 import { VisitsController } from './visits/visits.controller';
@@ -29,7 +29,7 @@ import { ImagesModule } from './images/images.module';
 
 @Module({
   controllers: [
-    StudentsController,
+    PupilsController,
     VisitsController,
     TeachersController,
     UsersController,
@@ -47,13 +47,13 @@ import { ImagesModule } from './images/images.module';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [User, Role, UserRoles, Student, Group, Visits, Teacher, Company],
+      models: [User, Role, UserRoles, Pupil, Group, Visits, Teacher, Company],
       autoLoadModels: true,
     }),
     UsersModule,
     RolesModule,
     AuthModule,
-    StudentsModule,
+    PupilsModule,
     GroupsModule,
     VisitsModule,
     TeachersModule,

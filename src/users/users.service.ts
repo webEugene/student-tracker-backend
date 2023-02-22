@@ -12,7 +12,7 @@ import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
 import { Company } from '../company/company.model';
 import { TeachersService } from '../teachers/teachers.service';
 import { GroupsService } from '../groups/groups.service';
-import { StudentsService } from '../students/students.service';
+import { PupilsService } from '../pupils/pupils.service';
 import { VisitsService } from '../visits/visits.service';
 import { ImagesService } from '../images/images.service';
 
@@ -23,7 +23,7 @@ export class UsersService {
     private roleService: RolesService,
     private teacherService: TeachersService,
     private groupsService: GroupsService,
-    private studentsService: StudentsService,
+    private pupilsService: PupilsService,
     private visitsService: VisitsService,
     private imagesService: ImagesService,
   ) {}
@@ -149,7 +149,7 @@ export class UsersService {
 
   async deleteAdminAndCompany(deleteEverything: IdAndCompanyIdDto) {
     // Delete visits
-    await this.visitsService.deleteStudentVisits({
+    await this.visitsService.deletePupilVisits({
       company_id: deleteEverything.company_id,
     });
     // Delete all users created admin and current component

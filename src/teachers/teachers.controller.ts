@@ -129,7 +129,7 @@ export class TeachersController {
 
   @Delete('/delete-avatar/:id')
   @ApiOperation({ summary: 'Delete teacher avatar' })
-  async deleteStudentAvatar(
+  async deletePupilAvatar(
     @Param('id', ParseUUIDPipe) id: string,
     @Query() query: DeleteAvatarDto,
   ): Promise<[number, Teacher[]]> {

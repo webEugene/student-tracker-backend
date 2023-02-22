@@ -9,7 +9,7 @@ import { RolesModule } from '../roles/roles.module';
 import { AuthModule } from '../auth/auth.module';
 import { TeachersModule } from '../teachers/teachers.module';
 import { GroupsModule } from '../groups/groups.module';
-import { StudentsModule } from '../students/students.module';
+import { PupilsModule } from '../pupils/pupils.module';
 import { VisitsModule } from '../visits/visits.module';
 import { ImagesModule } from '../images/images.module';
 
@@ -21,7 +21,7 @@ import { ImagesModule } from '../images/images.module';
     RolesModule,
     TeachersModule,
     GroupsModule,
-    StudentsModule,
+    PupilsModule,
     VisitsModule,
     ImagesModule,
     forwardRef(() => AuthModule),

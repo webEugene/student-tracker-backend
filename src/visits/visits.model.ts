@@ -8,7 +8,7 @@ import {
   Table,
 } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
-import { Student } from '../students/students.model';
+import { Pupil } from '../pupils/pupils.model';
 import { Company } from '../company/company.model';
 
 @DefaultScope(() => ({
@@ -73,11 +73,11 @@ export class Visits extends Model<Visits, IVisit> {
 
   @ApiProperty({
     example: '994ba8ac-a052-4194-805b-589204b45716',
-    description: 'Foreign key of student_id as UUID',
+    description: 'Foreign key of pupil_id as UUID',
   })
-  @ForeignKey(() => Student)
+  @ForeignKey(() => Pupil)
   @Column({ type: DataType.UUID })
-  student_id: string;
+  pupil_id: string;
 
   @ApiProperty({
     example: '994ba8ac-a052-4194-805b-589204b45716',
