@@ -1,7 +1,7 @@
-import { InjectModel } from '@nestjs/sequelize';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import {
   ConflictException,
+  Inject,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { Company } from './company.model';
@@ -9,7 +9,7 @@ import { ImagesService } from '../images/images.service';
 
 export class CompanyService {
   constructor(
-    @InjectModel(Company) private companyRepository: typeof Company,
+    @Inject('COMPANY_REPOSITORY') private companyRepository: typeof Company,
     private imageService: ImagesService,
   ) {}
 
