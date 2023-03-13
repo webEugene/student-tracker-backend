@@ -1,5 +1,4 @@
-import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
+import { Inject, Injectable } from '@nestjs/common';
 import { Visits } from './visits.model';
 import { CreateCameVisitDto } from './dto/create-came-visit.dto';
 import { CreateLeftVisitDto } from './dto/create-left-visit.dto';
@@ -7,7 +6,9 @@ import { DeleteVisitDto } from './dto/delete-visit.dto';
 
 @Injectable()
 export class VisitsService {
-  constructor(@InjectModel(Visits) private visitRepository: typeof Visits) {}
+  constructor(
+    @Inject('VISIT_REPOSITORY') private visitRepository: typeof Visits,
+  ) {}
 
   async cameAtVisit(dto: CreateCameVisitDto): Promise<Visits> {
     return await this.visitRepository.create(dto);

@@ -1,12 +1,12 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
-import { InjectModel } from '@nestjs/sequelize';
 import { Group } from './groups.model';
 import { Pupil } from '../pupils/pupils.model';
 import { Teacher } from '../teachers/teachers.model';
@@ -15,7 +15,9 @@ import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
 
 @Injectable()
 export class GroupsService {
-  constructor(@InjectModel(Group) private groupRepository: typeof Group) {}
+  constructor(
+    @Inject('GROUP_REPOSITORY') private groupRepository: typeof Group,
+  ) {}
 
   async create(createGroupDto: CreateGroupDto): Promise<Group> {
     try {

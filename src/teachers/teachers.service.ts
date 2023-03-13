@@ -1,5 +1,5 @@
 import {
-  ConflictException,
+  ConflictException, Inject,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -20,7 +20,7 @@ import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
 @Injectable()
 export class TeachersService {
   constructor(
-    @InjectModel(Teacher) private teacherRepository: typeof Teacher,
+    @Inject('TEACHER_REPOSITORY') private teacherRepository: typeof Teacher,
     private imageService: ImagesService,
   ) {}
 

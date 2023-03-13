@@ -1,11 +1,11 @@
 import {
   ConflictException,
+  Inject,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
 import path = require('path');
 // Sequelize
-import { InjectModel } from '@nestjs/sequelize';
 import { Op } from 'sequelize';
 // Models
 import { Pupil } from './pupils.model';
@@ -24,7 +24,7 @@ import { ChangeGroupDto } from './dto/change-group.dto';
 @Injectable()
 export class PupilsService {
   constructor(
-    @InjectModel(Pupil) private pupilRepository: typeof Pupil,
+    @Inject('PUPIL_REPOSITORY') private pupilRepository: typeof Pupil,
     private imageService: ImagesService,
   ) {}
 

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './users.model';
 import { RolesService } from '../roles/roles.service';
@@ -19,7 +19,7 @@ import { ImagesService } from '../images/images.service';
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectModel(User) private userRepository: typeof User,
+    @Inject('USER_REPOSITORY') private userRepository: typeof User,
     private roleService: RolesService,
     private teacherService: TeachersService,
     private groupsService: GroupsService,
