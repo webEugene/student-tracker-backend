@@ -9,7 +9,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { Group } from '../groups/groups.model';
 import { User } from '../users/users.model';
-import { Student } from '../students/students.model';
+import { Pupil } from '../pupils/pupils.model';
 import { Teacher } from '../teachers/teachers.model';
 import { Visits } from '../visits/visits.model';
 interface ICompanyAttr {
@@ -43,11 +43,11 @@ export class Company extends Model<Company, ICompanyAttr> {
   })
   teachers: Teacher[];
 
-  @HasMany(() => Student, {
+  @HasMany(() => Pupil, {
     onDelete: 'CASCADE',
     hooks: true,
   })
-  students: Student[];
+  pupils: Pupil[];
 
   @HasMany(() => Visits, {
     onDelete: 'CASCADE',

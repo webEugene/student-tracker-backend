@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { AuthModule } from './auth/auth.module';
-import { StudentsController } from './students/students.controller';
-import { StudentsModule } from './students/students.module';
+import { PupilsController } from './pupils/pupils.controller';
+import { PupilsModule } from './pupils/pupils.module';
 import { GroupsModule } from './groups/groups.module';
 import { VisitsController } from './visits/visits.controller';
 import { VisitsModule } from './visits/visits.module';
@@ -21,7 +21,7 @@ import { DatabaseModule } from './database/database.module';
 
 @Module({
   controllers: [
-    StudentsController,
+    PupilsController,
     VisitsController,
     TeachersController,
     UsersController,
@@ -34,7 +34,7 @@ import { DatabaseModule } from './database/database.module';
     UsersModule,
     RolesModule,
     AuthModule,
-    StudentsModule,
+    PupilsModule,
     GroupsModule,
     VisitsModule,
     TeachersModule,

@@ -24,13 +24,13 @@ export class VisitsService {
     );
   }
 
-  async deleteStudentVisits(deleteVisitDto: DeleteVisitDto): Promise<void> {
-    const deletedAllStudentVisits = await this.visitRepository.findAll({
+  async deletePupilVisits(deleteVisitDto: DeleteVisitDto): Promise<void> {
+    const deletedAllPupilVisits = await this.visitRepository.findAll({
       where: {
         company_id: deleteVisitDto.company_id,
       },
     });
-    const selectVisitsIds = deletedAllStudentVisits.map(item => item.id);
+    const selectVisitsIds = deletedAllPupilVisits.map(item => item.id);
 
     await Visits.destroy({ where: { id: selectVisitsIds } });
   }

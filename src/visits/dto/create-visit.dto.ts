@@ -19,7 +19,7 @@ export class UpdateVisitDto {
 
   @IsUUID()
   @IsNotEmpty()
-  readonly student_id: string;
+  readonly pupil_id: string;
 
   @IsNotEmpty()
   @IsISO8601({ strict: true })

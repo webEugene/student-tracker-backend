@@ -8,7 +8,7 @@ import {
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { Group } from './groups.model';
-import { Student } from '../students/students.model';
+import { Pupil } from '../pupils/pupils.model';
 import { Teacher } from '../teachers/teachers.model';
 import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
 import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
@@ -39,7 +39,7 @@ export class GroupsService {
         company_id: query.company_id,
       },
       include: [
-        { model: Student, attributes: ['id', 'name', 'surname'] },
+        { model: Pupil, attributes: ['id', 'name', 'surname'] },
         { model: Teacher, attributes: ['id', 'name', 'surname'] },
       ],
     });
@@ -107,7 +107,7 @@ export class GroupsService {
       if (error.parent.code === '23503') {
         throw new ConflictException({
           message: [
-            'Group can not be deleted. Delete relations with student or teacher first!',
+            'Group can not be deleted. Delete relations with pupil or teacher first!',
           ],
         });
       } else {

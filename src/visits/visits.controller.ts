@@ -57,9 +57,9 @@ export class VisitsController {
   @Delete('/delete')
   @ApiOperation({ summary: 'Delete' })
   @ApiResponse({ status: 200, type: Visits })
-  async deleteStudentVisits(
+  async deletePupilVisits(
     @Body(new ValidationPipe()) deleteVisitDto: DeleteVisitDto,
   ): Promise<void> {
-    return await this.visitsService.deleteStudentVisits(deleteVisitDto);
+    return await this.visitsService.deletePupilVisits(deleteVisitDto);
   }
 }

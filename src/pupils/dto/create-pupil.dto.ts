@@ -10,57 +10,39 @@ import {
   Length,
 } from 'class-validator';
 
-export class UpdateStudentDto {
-  @ApiProperty({ example: 'Ivan', description: 'Student name' })
+export class CreatePupilDto {
+  @ApiProperty({ example: 'Ivan', description: 'Pupil name' })
   @IsString({ message: 'Should be string' })
   @Length(2, 20, { message: 'Name should be between 2-20 characters' })
-  @IsOptional()
+  @IsNotEmpty()
   readonly name: string;
 
-  @ApiProperty({ example: 'Ivanov', description: 'Student surname' })
+  @ApiProperty({ example: 'Ivanov', description: 'Pupil surname' })
   @IsString({ message: 'Should be string' })
   @Length(2, 20, { message: 'Name should be between 2-20 characters' })
-  @IsOptional()
+  @IsNotEmpty()
   readonly surname: string;
 
-  @ApiProperty({ example: 'image.png', description: 'Student avatar' })
   @ApiProperty({
     example: 'Male',
-    description: 'Gender',
+    description: 'Pupil gender',
   })
   @IsNotEmpty()
-  @IsOptional()
   readonly gender: string;
 
   @ApiProperty({
     example: '+380991234567',
-    description: "Student's parent phone number",
+    description: "Pupil's parent phone number",
   })
   @IsPhoneNumber('UA', { message: 'Phone number should be in Ukraine format' })
-  @IsOptional()
   readonly mobilePhone: string;
 
   @ApiProperty({
     example: '2011-10-05T14:48:00.000Z',
-    description: 'Student birthday',
+    description: 'Pupil birthday',
   })
   @IsISO8601({ strict: true })
-  @IsOptional()
   readonly birthday: string;
-
-  @ApiProperty({ example: 'image.png', description: 'Student avatar' })
-  @IsNotEmpty()
-  @IsString({ message: 'Should be string' })
-  @IsOptional()
-  readonly avatar_path: string;
-
-  @ApiProperty({
-    example: 'email@email.com',
-    description: "Student's parent's email",
-  })
-  @IsOptional()
-  @IsEmail()
-  readonly email: string;
 
   @ApiProperty({
     example: '994ba8ac-a052-4194-805b-589204b45716',
@@ -68,8 +50,15 @@ export class UpdateStudentDto {
   })
   @IsUUID()
   @IsNotEmpty()
-  @IsOptional()
   readonly group_id: string;
+
+  @ApiProperty({
+    example: 'email@email.com',
+    description: "Pupil's parent's email",
+  })
+  @IsOptional()
+  @IsEmail()
+  readonly email: string;
 
   @ApiProperty({
     example: '994ba8ac-a052-4194-805b-589204b45716',
