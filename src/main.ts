@@ -5,7 +5,7 @@ import { ValidationPipe } from './pipes/validation.pipe';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
-  app.setGlobalPrefix('v1');
+  app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(new ValidationPipe());
   const config = new DocumentBuilder()
     .setTitle('Pupils tracker backend')
@@ -33,7 +33,7 @@ async function bootstrap() {
     },
   };
   SwaggerModule.setup('/api/docs', app, document, options);
-  await app.listen(process.env.PORT);
+  await app.listen(3000);
 }
 
 bootstrap();

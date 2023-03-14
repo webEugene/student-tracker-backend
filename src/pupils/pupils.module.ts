@@ -1,19 +1,15 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { PupilsService } from './pupils.service';
 import { PupilsController } from './pupils.controller';
-import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthModule } from '../auth/auth.module';
-import { Pupil } from './pupils.model';
 import { ImagesModule } from '../images/images.module';
+import { pupilsProviders } from './pupils.providers';
+import { DatabaseModule } from '../database/database.module';
 
 @Module({
-  providers: [PupilsService],
+  providers: [PupilsService, ...pupilsProviders],
   controllers: [PupilsController],
   exports: [PupilsService],
-  imports: [
-    SequelizeModule.forFeature([Pupil]),
-    forwardRef(() => AuthModule),
-    ImagesModule,
-  ],
+  imports: [DatabaseModule, forwardRef(() => AuthModule), ImagesModule],
 })
 export class PupilsModule {}
