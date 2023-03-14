@@ -55,4 +55,19 @@ export class CompanyService {
       }
     }
   }
+
+  async setCompanyPlan() {
+    // const group = await this.findOne(
+    //     updateGroupDto.id,
+    //     updateGroupDto.company_id,
+    // );
+    // return await this.companyRepository.update(updateGroupDto, {
+    //   where: {
+    //     id: group.id,
+    //     company_id: group.company_id,
+    //   },
+    // });
+
+    return [];
+  }
 }

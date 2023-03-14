@@ -26,6 +26,9 @@ import { UsersController } from './users/users.controller';
 import { CompanyController } from './company/company.controller';
 import { GroupsController } from './groups/groups.controller';
 import { ImagesModule } from './images/images.module';
+import { PaymentsModule } from './payments/payments.module';
+import { PlansModule } from './plans/plans.module';
+import { Plan } from './plans/plans.model';
 
 @Module({
   controllers: [
@@ -47,7 +50,17 @@ import { ImagesModule } from './images/images.module';
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
-      models: [User, Role, UserRoles, Pupil, Group, Visits, Teacher, Company],
+      models: [
+        User,
+        Role,
+        UserRoles,
+        Pupil,
+        Group,
+        Visits,
+        Teacher,
+        Company,
+        Plan,
+      ],
       autoLoadModels: true,
     }),
     UsersModule,
@@ -57,8 +70,10 @@ import { ImagesModule } from './images/images.module';
     GroupsModule,
     VisitsModule,
     TeachersModule,
-    CompanyModule,
     ImagesModule,
+    PaymentsModule,
+    CompanyModule,
+    PlansModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       // exclude: ['/v1*'],

@@ -1,7 +1,9 @@
 import {
+  BelongsTo,
   Column,
   DataType,
   DefaultScope,
+  ForeignKey,
   HasMany,
   Model,
   Table,
@@ -12,6 +14,7 @@ import { User } from '../users/users.model';
 import { Pupil } from '../pupils/pupils.model';
 import { Teacher } from '../teachers/teachers.model';
 import { Visits } from '../visits/visits.model';
+import { Plan } from '../plans/plans.model';
 interface ICompanyAttr {
   company: string;
 }
@@ -63,4 +66,15 @@ export class Company extends Model<Company, ICompanyAttr> {
 
   @HasMany(() => User)
   users: User[];
+
+  @ApiProperty({
+    example: '994ba8ac-a052-4194-805b-589204b45716',
+    description: 'Foreign key of plan_id as UUID',
+  })
+  @Column({ type: DataType.UUID })
+  @ForeignKey(() => Plan)
+  plan_id: string;
+
+  @BelongsTo(() => Plan)
+  plan: Plan;
 }
