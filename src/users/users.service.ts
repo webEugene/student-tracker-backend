@@ -1,20 +1,21 @@
 import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/sequelize';
 import { User } from './users.model';
 import { RolesService } from '../roles/roles.service';
 import { AuthRegisterDto } from '../auth/dto/auth-register.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { Role } from '../roles/roles.model';
+import { Company } from '../company/company.model';
+import { Plan } from '../plans/plans.model';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
 import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
-import { Company } from '../company/company.model';
 import { TeachersService } from '../teachers/teachers.service';
 import { GroupsService } from '../groups/groups.service';
 import { PupilsService } from '../pupils/pupils.service';
 import { VisitsService } from '../visits/visits.service';
 import { ImagesService } from '../images/images.service';
+import { Payment } from '../payments/payment.model';
 
 @Injectable()
 export class UsersService {
@@ -34,7 +35,7 @@ export class UsersService {
     await admin.$set('roles', [role.id]);
     admin.roles = [role];
 
-    return admin;
+    return await this.getUserByEmail(admin.email);
   }
 
   async createUser(userDto: CreateUserDto): Promise<User> {
@@ -83,6 +84,15 @@ export class UsersService {
           attributes: ['value', 'description'],
           through: { attributes: [] },
         },
+        {
+          model: Company,
+          attributes: ['company', 'tariff_permission'],
+          include: [
+            {
+              model: Plan,
+            },
+          ],
+        },
       ],
     });
   }
@@ -107,6 +117,7 @@ export class UsersService {
         id,
         company_id,
       },
+      attributes: { exclude: ['password'] },
       include: [
         {
           model: Role,
@@ -125,6 +136,43 @@ export class UsersService {
     }
     throw new HttpException(
       'User with this id does not exist',
+      HttpStatus.NOT_FOUND,
+    );
+  }
+
+  async findUserAdmin(findOneUserDto: IdAndCompanyIdDto): Promise<User> {
+    const admin = this.userRepository.findOne({
+      where: {
+        id: findOneUserDto.id,
+        company_id: findOneUserDto.company_id,
+      },
+      attributes: { exclude: ['password'] },
+      include: [
+        {
+          model: Role,
+          attributes: ['value', 'description'],
+          through: { attributes: [] },
+        },
+        {
+          model: Company,
+          attributes: ['company'],
+          include: [
+            {
+              model: Plan,
+            },
+            {
+              model: Payment,
+            },
+          ],
+        },
+      ],
+    });
+
+    if (admin) {
+      return admin;
+    }
+    throw new HttpException(
+      'Admin with this name does not exist',
       HttpStatus.NOT_FOUND,
     );
   }
