@@ -1,10 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Plan } from './plans.model';
-import { InjectModel } from '@nestjs/sequelize';
 
 @Injectable()
 export class PlansService {
-  constructor(@InjectModel(Plan) private planRepository: typeof Plan) {}
+  constructor(@Inject('PLAN_REPOSITORY') private planRepository: typeof Plan) {}
 
   async findAllPlans(): Promise<Plan[]> {
     const plans = await this.planRepository.findAll();

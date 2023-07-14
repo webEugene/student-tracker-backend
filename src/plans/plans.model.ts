@@ -27,24 +27,38 @@ export class Plan extends Model<Plan> {
   })
   id: string;
 
-  @ApiProperty({ example: 'Free', description: 'Type plan' })
+  @ApiProperty({ example: '0', description: 'Type plan' })
   @Column({
-    type: DataType.STRING,
+    type: DataType.INTEGER,
     allowNull: false,
   })
-  plan: string;
+  plan: number;
+
+  @ApiProperty({ example: 'Lorem', description: 'Description plan' })
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  description: string;
 
   @ApiProperty({ example: '200.00', description: 'Price for plan' })
   @Column({
-    type: DataType.DECIMAL,
-    allowNull: false,
+    type: DataType.DECIMAL(6, 2),
+    allowNull: true,
   })
   price: number;
 
-  @ApiProperty({ example: 'UAH', description: 'Country code' })
+  @ApiProperty({ example: 'UAH', description: 'Currency code' })
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
+  })
+  currency_code: string;
+
+  @ApiProperty({ example: 'UA', description: 'Country code' })
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
   })
   country_code: string;
 

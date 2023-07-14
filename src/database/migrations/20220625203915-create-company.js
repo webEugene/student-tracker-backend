@@ -18,6 +18,9 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
+      plan_id: {
+        type: Sequelize.UUID,
+      },
       createdAt: {
         type: Sequelize.DATE,
         defaultValue: null,

@@ -35,6 +35,14 @@ export class AuthRegisterDto {
 
   @ApiProperty({
     example: '994ba8ac-a052-4194-805b-589204b45716',
+    description: 'Plan uuid',
+  })
+  @IsUUID()
+  @IsNotEmpty()
+  readonly plan_id: string;
+
+  @ApiProperty({
+    example: '994ba8ac-a052-4194-805b-589204b45716',
     description: 'Company uuid',
   })
   @IsUUID()

@@ -108,4 +108,15 @@ export class UsersController {
   ): Promise<User> {
     return await this.usersService.findOneUser({ id, ...query });
   }
+
+  @Get('/admin/:id')
+  @ApiOperation({ summary: 'Find one user' })
+  @ApiResponse({ status: 200, type: User })
+  @UseGuards(JwtAuthGuard)
+  async findUserAdmin(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query() query: GetCompanyIdDto,
+  ): Promise<User> {
+    return await this.usersService.findUserAdmin({ id, ...query });
+  }
 }

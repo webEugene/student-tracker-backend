@@ -5,11 +5,11 @@ import { ApiOperation, ApiResponse } from '@nestjs/swagger';
 // import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
 import { Plan } from './plans.model';
 
-@UseGuards(JwtAuthGuard)
 @Controller('plans')
 export class PlansController {
   constructor(private readonly planService: PlansService) {}
 
+  // @UseGuards(JwtAuthGuard)
   @Get()
   @ApiOperation({ summary: 'Get all plans' })
   @ApiResponse({ status: 200, type: [Plan] })

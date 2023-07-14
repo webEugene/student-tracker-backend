@@ -19,7 +19,7 @@ import { ImagesModule } from './images/images.module';
 import { PaymentsModule } from './payments/payments.module';
 import { PlansModule } from './plans/plans.module';
 import { ConfigModule } from '@nestjs/config';
-// import { DatabaseModule } from './database/database.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   controllers: [
@@ -32,7 +32,7 @@ import { ConfigModule } from '@nestjs/config';
   ],
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
-    // DatabaseModule,
+    DatabaseModule,
     UsersModule,
     RolesModule,
     AuthModule,

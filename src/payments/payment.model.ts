@@ -2,28 +2,22 @@ import {
   BelongsTo,
   Column,
   DataType,
+  Default,
   DefaultScope,
   ForeignKey,
-  HasMany,
-  HasOne,
   Model,
   Table,
 } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
-import { Pupil } from '../pupils/pupils.model';
-import { Teacher } from '../teachers/teachers.model';
 import { Company } from '../company/company.model';
 
-interface IGroupAttr {
-  name: string;
-}
 @DefaultScope(() => ({
-  attributes: { exclude: ['createdAt', 'updatedAt'] },
+  attributes: { exclude: ['updatedAt'] },
 }))
 @Table({
-  tableName: 'groups',
+  tableName: 'payments',
 })
-export class Group extends Model<Group, IGroupAttr> {
+export class Payment extends Model<Payment> {
   @ApiProperty({
     example: '994ba8ac-a052-4194-805b-589204b45716',
     description: 'UUID',
@@ -35,19 +29,27 @@ export class Group extends Model<Group, IGroupAttr> {
   })
   id: string;
 
-  @ApiProperty({ example: 'Montessori', description: 'Group name' })
-  @Column({ type: DataType.STRING, allowNull: false })
-  name: string;
-
-  @HasMany(() => Pupil)
-  pupils: Pupil[];
-
-  @HasOne(() => Teacher, {
-    onUpdate: 'RESTRICT',
-    onDelete: 'RESTRICT',
-    hooks: true,
+  @ApiProperty({ example: '0', description: 'Type plan' })
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
   })
-  teacher: Teacher;
+  plan: number;
+
+  @ApiProperty({ example: '200.00', description: 'Price for plan' })
+  @Column({
+    type: DataType.DECIMAL(6, 2),
+    allowNull: false,
+  })
+  price: number;
+
+  @ApiProperty({ example: 'false', description: 'Test period for free usage' })
+  @Default(false)
+  @Column({
+    type: DataType.BOOLEAN,
+    allowNull: false,
+  })
+  test_period: boolean;
 
   @ApiProperty({
     example: '994ba8ac-a052-4194-805b-589204b45716',

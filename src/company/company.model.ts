@@ -15,6 +15,7 @@ import { Pupil } from '../pupils/pupils.model';
 import { Teacher } from '../teachers/teachers.model';
 import { Visits } from '../visits/visits.model';
 import { Plan } from '../plans/plans.model';
+import { Payment } from '../payments/payment.model';
 interface ICompanyAttr {
   company: string;
 }
@@ -39,6 +40,37 @@ export class Company extends Model<Company, ICompanyAttr> {
   @ApiProperty({ example: 'Corporation', description: 'Company name' })
   @Column({ type: DataType.STRING, allowNull: false, unique: true })
   company: string;
+
+  @ApiProperty({
+    example: '2011-10-05T14:48:00.000Z',
+    description: 'Tariff starts day',
+  })
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  tariff_start_date: string;
+
+  @ApiProperty({
+    example: '2011-10-05T14:48:00.000Z',
+    description: 'Tariff ends day',
+  })
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  tariff_end_date: string;
+
+  @ApiProperty({
+    example: '2011-10-05T14:48:00.000Z',
+    description: 'Tariff ends day',
+  })
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  })
+  tariff_permission: number;
 
   @HasMany(() => Teacher, {
     onDelete: 'CASCADE',
@@ -77,4 +109,7 @@ export class Company extends Model<Company, ICompanyAttr> {
 
   @BelongsTo(() => Plan)
   plan: Plan;
+
+  @HasMany(() => Payment)
+  payment: Payment;
 }
