@@ -27,7 +27,7 @@ export class Plan extends Model<Plan> {
   })
   id: string;
 
-  @ApiProperty({ example: '0', description: 'Type plan' })
+  @ApiProperty({ example: 0, description: 'Type plan' })
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
