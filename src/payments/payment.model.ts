@@ -2,7 +2,6 @@ import {
   BelongsTo,
   Column,
   DataType,
-  Default,
   DefaultScope,
   ForeignKey,
   Model,
@@ -36,20 +35,12 @@ export class Payment extends Model<Payment> {
   })
   plan: number;
 
-  @ApiProperty({ example: '200.00', description: 'Price for plan' })
+  @ApiProperty({ example: '20000', description: 'Price for plan' })
   @Column({
-    type: DataType.DECIMAL(6, 2),
+    type: DataType.STRING,
     allowNull: false,
   })
-  price: number;
-
-  @ApiProperty({ example: 'false', description: 'Test period for free usage' })
-  @Default(false)
-  @Column({
-    type: DataType.BOOLEAN,
-    allowNull: false,
-  })
-  test_period: boolean;
+  amount: string;
 
   @ApiProperty({
     example: '994ba8ac-a052-4194-805b-589204b45716',
@@ -58,6 +49,50 @@ export class Payment extends Model<Payment> {
   @Column({ type: DataType.UUID })
   @ForeignKey(() => Company)
   company_id: string;
+
+  @ApiProperty({ example: 'UAH', description: 'Currency type' })
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  currency: string;
+
+  @ApiProperty({ example: 'approved', description: 'Order payment status' })
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  payment_status: string;
+
+  @ApiProperty({
+    example: '19.08.2023 23:04:22',
+    description: 'Time of payment',
+  })
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  payment_time: string;
+
+  @ApiProperty({
+    example: '0000000',
+    description: 'payment_id of payment',
+  })
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: false,
+  })
+  payment_id: number;
+
+  @ApiProperty({
+    example: '7574b0916a4dba9c9cb2ed7d86de1a254996180e',
+    description: 'signature of payment',
+  })
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  signature: string;
 
   @BelongsTo(() => Company, 'company_id')
   company: Company;
