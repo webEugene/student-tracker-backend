@@ -36,7 +36,7 @@ export class Group extends Model<Group, IGroupAttr> {
   id: string;
 
   @ApiProperty({ example: 'Montessori', description: 'Group name' })
-  @Column({ type: DataType.STRING, allowNull: false, unique: true })
+  @Column({ type: DataType.STRING, allowNull: false })
   name: string;
 
   @HasMany(() => Pupil)

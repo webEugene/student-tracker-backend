@@ -12,3 +12,4 @@ async function bootstrap() {
 }
 
 bootstrap();
+// https://dbdiagram.io/d/612be3ce825b5b0146e9c12f

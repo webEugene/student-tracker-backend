@@ -16,6 +16,8 @@ import { UsersController } from './users/users.controller';
 import { CompanyController } from './company/company.controller';
 import { GroupsController } from './groups/groups.controller';
 import { ImagesModule } from './images/images.module';
+import { PaymentsModule } from './payments/payments.module';
+import { PlansModule } from './plans/plans.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 
@@ -38,8 +40,10 @@ import { DatabaseModule } from './database/database.module';
     GroupsModule,
     VisitsModule,
     TeachersModule,
-    CompanyModule,
     ImagesModule,
+    PaymentsModule,
+    CompanyModule,
+    PlansModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       // exclude: ['/v1*'],

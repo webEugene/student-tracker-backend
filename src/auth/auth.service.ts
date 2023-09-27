@@ -36,6 +36,7 @@ export class AuthService {
     }
     const company = await this.companyService.create({
       company: registerDto.company,
+      plan_id: registerDto.plan_id,
     });
 
     const newAdmin = await this.userService.getUserByEmail(registerDto.email);
@@ -67,6 +68,8 @@ export class AuthService {
         surname: user.surname,
         roles: user.roles,
         company_id: user.company_id,
+        type_tariff: user.company.plan.plan,
+        tariff_permission: user.company.tariff_permission,
       },
       access_token: this.jwtService.sign(payload),
     };
@@ -74,18 +77,19 @@ export class AuthService {
 
   private async validateUser(userDto: AuthLoginDto) {
     const user = await this.userService.getUserByEmail(userDto.email);
-
-    if (user === null) {
-      throw new UnauthorizedException({ message: 'Incorrect email' });
-    }
     const passwordEqual = await bcrypt.compare(userDto.password, user.password);
-    if (!passwordEqual) {
-      throw new UnauthorizedException({ message: 'Incorrect password' });
-    }
+
     if (user === null && !passwordEqual) {
       throw new UnauthorizedException({
         message: 'Incorrect password and email',
       });
+    }
+
+    if (user === null) {
+      throw new UnauthorizedException({ message: 'Incorrect email' });
+    }
+    if (!passwordEqual) {
+      throw new UnauthorizedException({ message: 'Incorrect password' });
     }
 
     return user;

@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Put } from '@nestjs/common';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { CompanyService } from './company.service';
 import {
@@ -25,5 +25,11 @@ export class CompanyController {
   @ApiBadRequestResponse({ description: 'Bad Request.' })
   async create(@Body() createCompanyDto: CreateCompanyDto) {
     return await this.companyService.create(createCompanyDto);
+  }
+
+  @Put()
+  async setCompanyPlan() {
+    // return await this.companyService.setCompanyPlan(createCompanyDto);
+    return [];
   }
 }

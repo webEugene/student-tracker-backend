@@ -9,6 +9,8 @@ import { Visits } from '../visits/visits.model';
 import { Teacher } from '../teachers/teachers.model';
 import { Company } from '../company/company.model';
 import { Pupil } from '../pupils/pupils.model';
+import { Plan } from '../plans/plans.model';
+import { Payment } from '../payments/payment.model';
 
 export const databaseProviders = [
   {
@@ -39,6 +41,8 @@ export const databaseProviders = [
         Visits,
         Teacher,
         Company,
+        Plan,
+        Payment,
       ]);
       await sequelize.sync();
       return sequelize;
