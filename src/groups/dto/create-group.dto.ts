@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
 
 export class CreateGroupDto {
   @ApiProperty({ example: 'Montessori', description: 'Group name' })
@@ -13,4 +13,12 @@ export class CreateGroupDto {
   @IsUUID()
   @IsNotEmpty()
   readonly company_id: string;
+
+  @ApiProperty({
+    example: 0,
+    description: 'Tariff permission',
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  readonly tariff_permission: number;
 }
