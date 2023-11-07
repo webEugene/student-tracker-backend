@@ -15,7 +15,7 @@ import { Company } from '../company/company.model';
 @Table({
   tableName: 'plans',
 })
-export class Plan extends Model<Plan> {
+export class Plan extends Model<Partial<Plan>> {
   @ApiProperty({
     example: '994ba8ac-a052-4194-805b-589204b45716',
     description: 'UUID',
@@ -27,7 +27,7 @@ export class Plan extends Model<Plan> {
   })
   id: string;
 
-  @ApiProperty({ example: 0, description: 'Type plan' })
+  @ApiProperty({ example: '0', description: 'Type plan' })
   @Column({
     type: DataType.INTEGER,
     allowNull: false,
@@ -41,24 +41,24 @@ export class Plan extends Model<Plan> {
   })
   description: string;
 
-  @ApiProperty({ example: '200.00', description: 'Price for plan' })
+  @ApiProperty({ example: '20000', description: 'Price for plan' })
   @Column({
-    type: DataType.DECIMAL(6, 2),
-    allowNull: true,
+    type: DataType.STRING,
+    allowNull: false,
   })
-  price: number;
+  price: string;
 
   @ApiProperty({ example: 'UAH', description: 'Currency code' })
   @Column({
     type: DataType.STRING,
-    allowNull: true,
+    allowNull: false,
   })
   currency_code: string;
 
   @ApiProperty({ example: 'UA', description: 'Country code' })
   @Column({
     type: DataType.STRING,
-    allowNull: true,
+    allowNull: false,
   })
   country_code: string;
 

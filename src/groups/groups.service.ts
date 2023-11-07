@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -12,6 +14,9 @@ import { Pupil } from '../pupils/pupils.model';
 import { Teacher } from '../teachers/teachers.model';
 import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
 import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
+import planEnum from '../common/enums/plan.enum';
+import permissionsGroup from '../common/enums/permissionsGroup.enum';
+import exceptionMessages from './enum/exeptionMessages.enum';
 
 @Injectable()
 export class GroupsService {
@@ -20,17 +25,44 @@ export class GroupsService {
   ) {}
 
   async create(createGroupDto: CreateGroupDto): Promise<Group> {
-    try {
-      return await this.groupRepository.create(createGroupDto);
-    } catch (error) {
-      if (error.code === '23505') {
-        throw new ConflictException({
-          message: ['Group is already exists'],
-        });
-      } else {
-        throw new InternalServerErrorException();
-      }
+    const tariff_permission: string =
+      planEnum[createGroupDto.tariff_permission];
+
+    const countGroupRows: number = await this.groupRepository.count({
+      where: {
+        company_id: createGroupDto.company_id,
+      },
+    });
+
+    if (countGroupRows > permissionsGroup[tariff_permission]) {
+      throw new HttpException(
+        {
+          message: [exceptionMessages.PermissionError],
+        },
+        HttpStatus.FORBIDDEN,
+      );
     }
+
+    const findGroupByName: Group = await this.findGroupByName(
+      createGroupDto.name,
+      createGroupDto.company_id,
+    );
+
+    if (findGroupByName && findGroupByName.name === createGroupDto.name) {
+      throw new ConflictException({
+        message: [exceptionMessages.DuplicateError],
+      });
+    }
+    return await this.groupRepository.create(createGroupDto);
+  }
+
+  async findGroupByName(name: string, company_id: string): Promise<Group> {
+    return await this.groupRepository.findOne({
+      where: {
+        name,
+        company_id,
+      },
+    });
   }
 
   async findAllGroups(query: GetCompanyIdDto): Promise<Group[]> {
@@ -106,9 +138,7 @@ export class GroupsService {
     } catch (error) {
       if (error.parent.code === '23503') {
         throw new ConflictException({
-          message: [
-            'Group can not be deleted. Delete relations with pupil or teacher first!',
-          ],
+          message: [exceptionMessages.RelationDeleteError],
         });
       } else {
         throw new InternalServerErrorException();

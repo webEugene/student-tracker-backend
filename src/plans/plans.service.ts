@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Plan } from './plans.model';
+import { CreatePlanDto } from './dto/create-plan.dto';
 
 @Injectable()
 export class PlansService {
@@ -13,5 +14,9 @@ export class PlansService {
     }
 
     return plans;
+  }
+
+  async createPlan(createPlanDto: CreatePlanDto): Promise<void> {
+    await this.planRepository.create(createPlanDto);
   }
 }

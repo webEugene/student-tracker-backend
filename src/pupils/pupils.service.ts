@@ -1,5 +1,7 @@
 import {
   ConflictException,
+  HttpException,
+  HttpStatus,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -20,6 +22,11 @@ import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
 import { CreatePupilDto } from './dto/create-pupil.dto';
 import { UpdatePupilDto } from './dto/update-pupil-dto';
 import { ChangeGroupDto } from './dto/change-group.dto';
+import exceptionMessages from './enum/exceptionMessages.enum';
+import permissionsPupil from '../common/enums/permissionPupil.enum';
+import planEnum from '../common/enums/plan.enum';
+import permissionsTeacher from '../common/enums/permissionTeacher.enum';
+import {Company} from "../company/company.model";
 
 @Injectable()
 export class PupilsService {
@@ -28,18 +35,41 @@ export class PupilsService {
     private imageService: ImagesService,
   ) {}
 
-  async createPupil(dto: CreatePupilDto): Promise<Pupil> {
-    try {
-      return await this.pupilRepository.create(dto);
-    } catch (error) {
-      if (error.code === '23505') {
-        throw new ConflictException({
-          message: ['Pupil is already exists'],
-        });
-      } else {
-        throw new InternalServerErrorException();
-      }
+  async createPupil(createPupilDto: CreatePupilDto): Promise<Pupil> {
+    const tariff_permission: string =
+      planEnum[createPupilDto.tariff_permission];
+
+    const countPupilRows: number = await this.pupilRepository.count({
+      where: {
+        company_id: createPupilDto.company_id,
+      },
+    });
+
+    if (countPupilRows > permissionsPupil[tariff_permission]) {
+      throw new HttpException(
+        {
+          message: [exceptionMessages.PermissionError],
+        },
+        HttpStatus.FORBIDDEN,
+      );
     }
+
+    const findPupilByNameAndSurname: Pupil = await this.findPupilByNameAndSurname(
+      createPupilDto.name,
+      createPupilDto.surname,
+      createPupilDto.company_id,
+    );
+    if (
+      findPupilByNameAndSurname &&
+      findPupilByNameAndSurname.name === createPupilDto.name &&
+      findPupilByNameAndSurname.surname === createPupilDto.surname
+    ) {
+      throw new ConflictException({
+        message: [exceptionMessages.DuplicateError],
+      });
+    }
+
+    return await this.pupilRepository.create(createPupilDto);
   }
 
   async deletePupil(deletePupilDto: IdAndCompanyIdDto): Promise<void> {
@@ -47,11 +77,22 @@ export class PupilsService {
       deletePupilDto.id,
       deletePupilDto.company_id,
     );
-    await this.imageService.deleteAvatar(
-      deletePupilDto.company_id,
-      deletedPupil.avatar_path,
-    );
-    await deletedPupil.destroy();
+
+    try {
+      this.imageService.deleteAvatar(
+        deletePupilDto.company_id,
+        deletedPupil.avatar_path,
+      );
+      await deletedPupil.destroy();
+    } catch (error) {
+      if (error.parent.code === '23503') {
+        throw new ConflictException({
+          message: [exceptionMessages.RelationDeleteError],
+        });
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
   async updatePupil(
@@ -110,6 +151,20 @@ export class PupilsService {
     });
   }
 
+  async findPupilByNameAndSurname(
+    name: string,
+    surname: string,
+    company_id: string,
+  ): Promise<Pupil> {
+    return await this.pupilRepository.findOne({
+      where: {
+        name,
+        surname,
+        company_id,
+      },
+    });
+  }
+
   async findOnePupil(findOnePupilDto: IdAndCompanyIdDto): Promise<Pupil> {
     return await this.findOne(findOnePupilDto.id, findOnePupilDto.company_id);
   }
@@ -125,6 +180,10 @@ export class PupilsService {
           model: Visits,
           separate: true,
           order: [['createdAt', 'DESC']],
+        },
+        {
+          model: Company,
+          attributes: ['tariff_permission'],
         },
       ],
       where: {
@@ -153,7 +212,7 @@ export class PupilsService {
         { where: { id, company_id }, returning: true },
       );
     } else {
-      await this.imageService.deleteAvatar(
+      this.imageService.deleteAvatar(
         company_id,
         getCurrentAvatarPath.avatar_path,
       );
@@ -170,7 +229,8 @@ export class PupilsService {
     avatar_path: string,
     company_id: string,
   ): Promise<[number, Pupil[]]> {
-    await this.imageService.deleteAvatar(company_id, avatar_path);
+    this.imageService.deleteAvatar(company_id, avatar_path);
+
     return await this.pupilRepository.update(
       { avatar_path: null },
       { where: { id, company_id }, returning: true },

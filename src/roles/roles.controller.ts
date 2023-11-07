@@ -23,8 +23,8 @@ export class RolesController {
   })
   @ApiForbiddenResponse({ description: 'Forbidden.' })
   @ApiBadRequestResponse({ description: 'Bad Request.' })
-  create(@Body() dto: CreateRoleDto): Promise<Role> {
-    return this.roleService.createRole(dto);
+  create(@Body() createRoleDto: CreateRoleDto) {
+    this.roleService.createRole(createRoleDto);
   }
 
   @Get('/:value')

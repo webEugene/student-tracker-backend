@@ -1,6 +1,7 @@
 import {
   IsISO8601,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsPhoneNumber,
   IsString,
@@ -52,4 +53,12 @@ export class CreateTeacherDto {
   @IsUUID()
   @IsNotEmpty()
   readonly company_id: string;
+
+  @ApiProperty({
+    example: 0,
+    description: 'Tariff permission',
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  readonly tariff_permission: number;
 }

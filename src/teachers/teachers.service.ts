@@ -1,11 +1,12 @@
 import {
-  ConflictException, Inject,
+  ConflictException,
+  HttpException,
+  HttpStatus,
+  Inject,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
 import path = require('path');
-// Sequelize
-import { InjectModel } from '@nestjs/sequelize';
 // Models
 import { Teacher } from './teachers.model';
 import { Group } from '../groups/groups.model';
@@ -16,6 +17,9 @@ import { CreateTeacherDto } from './dto/create-teacher.dto';
 import { UpdateTeacherDto } from './dto/update-teacher.dto';
 import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
 import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
+import planEnum from '../common/enums/plan.enum';
+import exceptionMessages from './enum/exceptionMessages.enum';
+import permissionsTeacher from '../common/enums/permissionTeacher.enum';
 
 @Injectable()
 export class TeachersService {
@@ -25,25 +29,73 @@ export class TeachersService {
   ) {}
 
   async createTeacher(createTeacherDto: CreateTeacherDto): Promise<Teacher> {
+    const tariff_permission: string =
+      planEnum[createTeacherDto.tariff_permission];
+
+    const countTeacherRows: number = await this.teacherRepository.count({
+      where: {
+        company_id: createTeacherDto.company_id,
+      },
+    });
+
+    if (countTeacherRows > permissionsTeacher[tariff_permission]) {
+      throw new HttpException(
+        {
+          message: [exceptionMessages.PermissionError],
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const findTeacherByNameAndSurname: Teacher = await this.findTeacherByNameAndSurname(
+      createTeacherDto.name,
+      createTeacherDto.surname,
+      createTeacherDto.company_id,
+    );
+
+    if (
+      findTeacherByNameAndSurname &&
+      findTeacherByNameAndSurname.name === createTeacherDto.name &&
+      findTeacherByNameAndSurname.surname === createTeacherDto.surname
+    ) {
+      throw new ConflictException({
+        message: [exceptionMessages.DuplicateError],
+      });
+    }
+
+    return await this.teacherRepository.create(createTeacherDto);
+  }
+
+  async findTeacherByNameAndSurname(
+    name: string,
+    surname: string,
+    company_id: string,
+  ): Promise<Teacher> {
+    return await this.teacherRepository.findOne({
+      where: {
+        name,
+        surname,
+        company_id,
+      },
+    });
+  }
+
+  async deleteTeacher(deleteTeacherDto: IdAndCompanyIdDto): Promise<void> {
+    const teacher = await this.findOne(
+      deleteTeacherDto.id,
+      deleteTeacherDto.company_id,
+    );
     try {
-      return await this.teacherRepository.create(createTeacherDto);
+      await teacher.destroy();
     } catch (error) {
-      if (error.code === '23505') {
+      if (error.parent.code === '23503') {
         throw new ConflictException({
-          message: ['Teacher is already exists'],
+          message: [exceptionMessages.RelationDeleteError],
         });
       } else {
         throw new InternalServerErrorException();
       }
     }
-  }
-
-  async deleteTeacher(deleteTeacherDto: IdAndCompanyIdDto): Promise<void> {
-    const deletedTeacher = await this.findOne(
-      deleteTeacherDto.id,
-      deleteTeacherDto.company_id,
-    );
-    await deletedTeacher.destroy();
   }
 
   async findOneTeacher(findOneTeacherDto: IdAndCompanyIdDto): Promise<Teacher> {
@@ -97,14 +149,13 @@ export class TeachersService {
       company_id,
       getCurrentAvatarPath.avatar_path,
     );
-
     if (getCurrentAvatarPath.avatar_path && !ifFileExistInFolder) {
       return await this.teacherRepository.update(
         { avatar_path: updatedAvatarName },
         { where: { id, company_id }, returning: true },
       );
     } else {
-      await this.imageService.deleteAvatar(
+      this.imageService.deleteAvatar(
         company_id,
         getCurrentAvatarPath.avatar_path,
       );
@@ -120,7 +171,7 @@ export class TeachersService {
     avatar_path: string,
     company_id: string,
   ): Promise<[number, Teacher[]]> {
-    await this.imageService.deleteAvatar(company_id, avatar_path);
+    this.imageService.deleteAvatar(company_id, avatar_path);
     return await this.teacherRepository.update(
       { avatar_path: null },
       { where: { id, company_id }, returning: true },

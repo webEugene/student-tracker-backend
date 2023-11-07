@@ -1,4 +1,11 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { User } from './users.model';
 import { RolesService } from '../roles/roles.service';
 import { AuthRegisterDto } from '../auth/dto/auth-register.dto';
@@ -6,32 +13,32 @@ import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcryptjs';
 import { Role } from '../roles/roles.model';
 import { Company } from '../company/company.model';
+import { Pupil } from '../pupils/pupils.model';
+import { Group } from '../groups/groups.model';
+import { Teacher } from '../teachers/teachers.model';
 import { Plan } from '../plans/plans.model';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
 import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
-import { TeachersService } from '../teachers/teachers.service';
-import { GroupsService } from '../groups/groups.service';
-import { PupilsService } from '../pupils/pupils.service';
 import { VisitsService } from '../visits/visits.service';
 import { ImagesService } from '../images/images.service';
 import { Payment } from '../payments/payment.model';
-
+import { RoleEnum } from '../roles/enum/role.enum';
+import planEnum from '../common/enums/plan.enum';
+import exceptionMessages from './enum/exceptionMessages.enum';
+import permissionsUser from '../common/enums/permissionUser.enum';
 @Injectable()
 export class UsersService {
   constructor(
     @Inject('USER_REPOSITORY') private userRepository: typeof User,
     private roleService: RolesService,
-    private teacherService: TeachersService,
-    private groupsService: GroupsService,
-    private pupilsService: PupilsService,
     private visitsService: VisitsService,
     private imagesService: ImagesService,
   ) {}
 
   async registerAdmin(dto: AuthRegisterDto): Promise<User> {
-    const admin = await this.userRepository.create(dto);
-    const role = await this.roleService.getRoleByValue('admin');
+    const admin: User = await this.userRepository.create(dto);
+    const role: Role = await this.roleService.getRoleByValue(RoleEnum.ADMIN);
     await admin.$set('roles', [role.id]);
     admin.roles = [role];
 
@@ -39,9 +46,28 @@ export class UsersService {
   }
 
   async createUser(userDto: CreateUserDto): Promise<User> {
+    const tariff_permission: string = planEnum[userDto.tariff_permission];
+
+    const countUserRows: number = await this.userRepository.count({
+      where: {
+        company_id: userDto.company_id,
+      },
+    });
+
+    if (countUserRows > permissionsUser[tariff_permission]) {
+      throw new HttpException(
+        {
+          message: [exceptionMessages.PermissionError],
+        },
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     const isUserExist = await this.getUserByEmail(userDto.email);
     if (isUserExist) {
-      throw new HttpException('User already exists!', HttpStatus.BAD_REQUEST);
+      throw new ConflictException({
+        message: [exceptionMessages.DuplicateError],
+      });
     }
 
     const hashPassword = await bcrypt.hash(userDto.password, 5);
@@ -49,7 +75,7 @@ export class UsersService {
       ...userDto,
       password: hashPassword,
     });
-    const role = await this.roleService.getRoleByValue('user');
+    const role = await this.roleService.getRoleByValue(RoleEnum.USER);
 
     await user.$set('roles', [role.id]);
     user.roles = [role];
@@ -66,7 +92,7 @@ export class UsersService {
         {
           model: Role,
           where: {
-            value: 'user',
+            value: RoleEnum.USER,
           },
           attributes: ['value', 'description'],
           through: { attributes: [] },
@@ -181,18 +207,38 @@ export class UsersService {
     id: string,
     updateUserDto: UpdateUserDto,
   ): Promise<[number, User[]]> {
-    return await this.userRepository.update(
-      { ...updateUserDto },
-      { where: { id, company_id: updateUserDto.company_id }, returning: true },
-    );
+    try {
+      return await this.userRepository.update(
+        { ...updateUserDto },
+        {
+          where: { id, company_id: updateUserDto.company_id },
+          returning: true,
+        },
+      );
+    } catch (error) {
+      if (error.parent.code === '23505') {
+        throw new ConflictException({
+          message: [exceptionMessages.DuplicateDataError],
+        });
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
   async deleteUser(deleteUserDto: IdAndCompanyIdDto): Promise<void> {
-    const deleteUser = await this.findOne(
-      deleteUserDto.id,
-      deleteUserDto.company_id,
-    );
-    await deleteUser.destroy();
+    const user = await this.findOne(deleteUserDto.id, deleteUserDto.company_id);
+    try {
+      await user.destroy();
+    } catch (error) {
+      if (error.parent.code === '23503') {
+        throw new ConflictException({
+          message: [exceptionMessages.RelationDeleteError],
+        });
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
   }
 
   async deleteAdminAndCompany(deleteEverything: IdAndCompanyIdDto) {
@@ -201,13 +247,12 @@ export class UsersService {
       company_id: deleteEverything.company_id,
     });
     // Delete all users created admin and current component
-    await User.destroy({ where: { id: deleteEverything.id } });
+    await Teacher.destroy({ where: { id: deleteEverything.id } });
+    await Pupil.destroy({ where: { id: deleteEverything.id } });
+    await Group.destroy({ where: { id: deleteEverything.id } });
     // Delete company folder where avatars had been saved!
-    await this.imagesService.removeCompanyAvatarFolder(
-      deleteEverything.company_id,
-    );
+    this.imagesService.removeCompanyAvatarFolder(deleteEverything.company_id);
     await User.destroy({ where: { id: deleteEverything.id } });
-
     await Company.destroy({ where: { id: deleteEverything.company_id } });
   }
 }

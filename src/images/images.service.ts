@@ -1,19 +1,18 @@
 import { Injectable } from '@nestjs/common';
 import { mkdir, constants, promises, unlink, rm } from 'fs';
-import path = require('path');
 
 @Injectable()
 export class ImagesService {
   private readonly PROFILES_AVATARS_DIR = './uploads/profiles/';
 
-  deleteAvatar(companyId, avatarPath) {
+  deleteAvatar(companyId: string, avatarPath: string): void {
     const fullPath = `${this.PROFILES_AVATARS_DIR}/${companyId}/${avatarPath}`;
     unlink(fullPath, err => {
       return !err;
     });
   }
 
-  removeCompanyAvatarFolder(companyId) {
+  removeCompanyAvatarFolder(companyId: string) {
     rm(
       `${this.PROFILES_AVATARS_DIR}/${companyId}`,
       { recursive: true, force: true },
@@ -23,14 +22,6 @@ export class ImagesService {
         }
       },
     );
-  }
-
-  createImageName(forSaveAvatarInfo): string {
-    const filename: string =
-      forSaveAvatarInfo.id + '_uu_' + forSaveAvatarInfo.company_id;
-    const extension: string = path.parse(forSaveAvatarInfo.avatar_name).ext;
-
-    return `${filename}${extension}`;
   }
 
   createDirectory(folderName: string): void | never {
@@ -46,7 +37,7 @@ export class ImagesService {
     }
   }
 
-  checkForExistence(companyId, avatarPath?: string): boolean {
+  checkForExistence(companyId: string, avatarPath?: string): boolean {
     let isExist = false;
     const fullPath = avatarPath
       ? `${this.PROFILES_AVATARS_DIR}/${companyId}/${avatarPath}`

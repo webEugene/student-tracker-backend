@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsEmail,
   IsISO8601,
-  IsNotEmpty,
+  IsNotEmpty, IsNumber,
   IsOptional,
   IsPhoneNumber,
   IsString,
@@ -67,4 +67,12 @@ export class CreatePupilDto {
   @IsUUID()
   @IsNotEmpty()
   readonly company_id: string;
+
+  @ApiProperty({
+    example: 0,
+    description: 'Tariff permission',
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  readonly tariff_permission: number;
 }
