@@ -100,4 +100,24 @@ export class Visits extends Model<Visits, IVisit> {
     defaultValue: null,
   })
   createdAt: string;
+
+  @ApiProperty({
+    example: 'Tom Tomas',
+    description: 'name of the confirmer',
+  })
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+  })
+  came_confirmer: string;
+
+  @ApiProperty({
+    example: 'Tom Tomas',
+    description: 'name of the confirmer',
+  })
+  @Column({
+    type: DataType.STRING,
+    allowNull: true,
+  })
+  left_confirmer: string;
 }

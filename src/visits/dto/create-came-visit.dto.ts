@@ -1,4 +1,4 @@
-import { IsISO8601, IsNotEmpty, IsUUID } from 'class-validator';
+import {IsISO8601, IsNotEmpty, IsNumber, IsString, IsUUID} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateCameVisitDto {
@@ -22,6 +22,7 @@ export class CreateCameVisitDto {
     example: 2,
     description: 'Who brought',
   })
+  @IsNumber()
   @IsNotEmpty()
   readonly brought: number;
 
@@ -32,4 +33,12 @@ export class CreateCameVisitDto {
   @IsUUID()
   @IsNotEmpty()
   readonly company_id: string;
+
+  @ApiProperty({
+    example: 'Tom Tomas',
+    description: 'Name of the confirmer',
+  })
+  @IsString()
+  @IsNotEmpty()
+  readonly came_confirmer: string;
 }
