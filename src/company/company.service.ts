@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { Company } from './company.model';
 import { ImagesService } from '../images/images.service';
+import { ChangeCompanyTariffPlanDto } from './dto/change-tariff.dto';
 
 export class CompanyService {
   constructor(
@@ -56,18 +57,16 @@ export class CompanyService {
     }
   }
 
-  async setCompanyPlan() {
-    // const group = await this.findOne(
-    //     updateGroupDto.id,
-    //     updateGroupDto.company_id,
-    // );
-    // return await this.companyRepository.update(updateGroupDto, {
-    //   where: {
-    //     id: group.id,
-    //     company_id: group.company_id,
-    //   },
-    // });
-
-    return [];
+  async changeTariffPlan(changeTariffPlanDto: ChangeCompanyTariffPlanDto) {
+    const company = await this.companyRepository.findOne({
+      where: {
+        id: changeTariffPlanDto.company_id,
+      },
+    });
+    return await this.companyRepository.update(changeTariffPlanDto, {
+      where: {
+        id: company.id,
+      },
+    });
   }
 }
