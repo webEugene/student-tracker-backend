@@ -1,4 +1,13 @@
-import { Body, Controller, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Param,
+  ParseUUIDPipe,
+  Patch,
+  Post,
+  Put,
+  ValidationPipe,
+} from '@nestjs/common';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { CompanyService } from './company.service';
 import {
@@ -6,9 +15,12 @@ import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiForbiddenResponse,
+  ApiOperation,
+  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { Company } from './company.model';
+import { ChangeCompanyTariffPlanDto } from './dto/change-tariff.dto';
 
 @ApiBearerAuth('defaultBearerAuth')
 @ApiTags('Companies')
@@ -27,9 +39,12 @@ export class CompanyController {
     return await this.companyService.create(createCompanyDto);
   }
 
-  @Put()
-  async setCompanyPlan() {
-    // return await this.companyService.setCompanyPlan(createCompanyDto);
-    return [];
+  @Patch('/change-tariff')
+  @ApiOperation({ summary: 'Change group of pupil' })
+  @ApiResponse({ status: 204, type: Company })
+  async changeTariffPlan(
+    @Body(new ValidationPipe()) changeTariffPlanDto: ChangeCompanyTariffPlanDto,
+  ) {
+    return await this.companyService.changeTariffPlan(changeTariffPlanDto);
   }
 }
