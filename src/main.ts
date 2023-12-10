@@ -8,7 +8,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(new ValidationPipe());
   setupSwagger(app);
-  await app.listen(3000);
+  await app.listen(process.env.PORT ? parseInt(process.env.PORT) : 3000);
 }
 
 bootstrap();

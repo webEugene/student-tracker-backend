@@ -18,6 +18,18 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
+      tariff_start_date: {
+        allowNull: true,
+        type: Sequelize.DATE,
+      },
+      tariff_end_date: {
+        allowNull: true,
+        type: Sequelize.DATE,
+      },
+      tariff_permission: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+      },
       plan_id: {
         type: Sequelize.UUID,
       },

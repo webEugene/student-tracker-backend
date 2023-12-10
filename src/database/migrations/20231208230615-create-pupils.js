@@ -27,7 +27,7 @@ module.exports = {
         allowNull: false,
       },
       birthday: {
-        type: Sequelize.STRING,
+        type: Sequelize.DATE,
         allowNull: true,
       },
       avatar_path: {
@@ -39,6 +39,9 @@ module.exports = {
         allowNull: true,
       },
       group_id: {
+        type: Sequelize.UUID,
+      },
+      company_id: {
         type: Sequelize.UUID,
       },
       createdAt: {

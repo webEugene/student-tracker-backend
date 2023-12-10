@@ -5,32 +5,32 @@ module.exports = {
     /**
      * Add altering commands here.
      */
-    await queryInterface.createTable('visits', {
+    await queryInterface.createTable('teachers', {
       id: {
         type: Sequelize.UUID,
         primaryKey: true,
       },
-      came_at: {
+      name: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      surname: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      mobilePhone: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      birthday: {
         type: Sequelize.DATE,
-        defaultValue: null,
         allowNull: true,
       },
-      left_at: {
-        type: Sequelize.DATE,
-        defaultValue: null,
+      avatar_path: {
+        type: Sequelize.STRING,
         allowNull: true,
       },
-      brought: {
-        type: Sequelize.INTEGER,
-        defaultValue: null,
-        allowNull: true,
-      },
-      took: {
-        type: Sequelize.INTEGER,
-        defaultValue: null,
-        allowNull: true,
-      },
-      student_id: {
+      group_id: {
         type: Sequelize.UUID,
       },
       company_id: {
@@ -53,6 +53,6 @@ module.exports = {
     /**
      * Add reverting commands here.
      */
-    await queryInterface.dropTable('visits');
+    await queryInterface.dropTable('teachers');
   },
 };

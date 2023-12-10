@@ -11,6 +11,15 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Pupil } from '../pupils/pupils.model';
 import { Company } from '../company/company.model';
 
+interface IVisit {
+  came_at?: string;
+  brought?: number;
+  left_at?: string;
+  took?: number;
+  came_confirmer: string;
+  left_confirmer?: string;
+}
+
 @DefaultScope(() => ({
   attributes: { exclude: ['updatedAt'] },
 }))
@@ -83,7 +92,7 @@ export class Visits extends Model<Visits, IVisit> {
     example: '994ba8ac-a052-4194-805b-589204b45716',
     description: 'Foreign key of company_id as UUID',
   })
-  @Column({ type: DataType.UUID })
+  @Column({ type: DataType.UUID, allowNull: false })
   @ForeignKey(() => Company)
   company_id: string;
 

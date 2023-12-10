@@ -42,7 +42,7 @@ export class GroupsController {
   @ApiResponse({ status: 200, type: Group })
   async update(
     @Body() updateGroupDto: UpdateGroupDto,
-  ): Promise<[number, Group[]]> {
+  ): Promise<[number]> {
     return await this.groupsService.update(updateGroupDto);
   }
 

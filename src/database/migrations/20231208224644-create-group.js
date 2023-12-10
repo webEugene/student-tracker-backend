@@ -19,6 +19,13 @@ module.exports = {
       },
       company_id: {
         type: Sequelize.UUID,
+        references: {
+          model: {
+            tableName: 'companies',
+          },
+          key: 'id',
+        },
+        allowNull: false,
       },
       createdAt: {
         type: Sequelize.DATE,
