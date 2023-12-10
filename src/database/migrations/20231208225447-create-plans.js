@@ -8,8 +8,16 @@ module.exports = {
         type: Sequelize.UUID,
         primaryKey: true,
       },
+      plan: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      description: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       price: {
-        type: Sequelize.DECIMAL(6, 2),
+        type: Sequelize.STRING,
         allowNull: false,
       },
       currency_code: {

@@ -24,6 +24,9 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      company_id: {
+        type: Sequelize.UUID,
+      },
       createdAt: {
         type: Sequelize.DATE,
         defaultValue: null,
