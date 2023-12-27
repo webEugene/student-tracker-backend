@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from './pipes/validation.pipe';
 import { setupSwagger } from './swagger';
+const ngrok = require('@ngrok/ngrok');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -9,6 +10,11 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
   setupSwagger(app);
   await app.listen(process.env.PORT ? parseInt(process.env.PORT) : 3000);
+
+  // Get your endpoint online
+  ngrok
+    .connect({ addr: 3000, authtoken_from_env: true })
+    .then(listener => console.log(`Ingress established at: ${listener.url()}`));
 }
 
 bootstrap();
