@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UsersModule } from '../users/users.module';
 import { CompanyModule } from '../company/company.module';
+import {MailerModule} from "../mailer/mailer.module";
 
 @Module({
   controllers: [AuthController],
@@ -11,12 +12,13 @@ import { CompanyModule } from '../company/company.module';
   imports: [
     forwardRef(() => UsersModule),
     JwtModule.register({
-      secret: process.env.PRIVATE_KEY || 'SECRET',
+      secret: process.env.JWT_SECRET_NAME || 'SECRET',
       signOptions: {
         expiresIn: '24h',
       },
     }),
     CompanyModule,
+    MailerModule,
   ],
   exports: [AuthService, JwtModule],
 })

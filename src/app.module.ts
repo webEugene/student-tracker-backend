@@ -20,6 +20,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { PlansModule } from './plans/plans.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
+import {MailerModule} from "./mailer/mailer.module";
 
 @Module({
   controllers: [
@@ -44,6 +45,7 @@ import { DatabaseModule } from './database/database.module';
     PaymentsModule,
     CompanyModule,
     PlansModule,
+    MailerModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'uploads'),
       // exclude: ['/v1*'],
