@@ -226,6 +226,26 @@ export class UsersService {
     }
   }
 
+  async resetPassword(id: string, company_id: string, password: string): Promise<[number, User[]]> {
+    try {
+      return await this.userRepository.update(
+          { password },
+          {
+            where: { id, company_id },
+            returning: true,
+          },
+      );
+    } catch (error) {
+      if (error.parent.code === '23505') {
+        throw new ConflictException({
+          message: [exceptionMessages.DuplicateDataError],
+        });
+      } else {
+        throw new InternalServerErrorException();
+      }
+    }
+  }
+
   async deleteUser(deleteUserDto: IdAndCompanyIdDto): Promise<void> {
     const user = await this.findOne(deleteUserDto.id, deleteUserDto.company_id);
     try {
