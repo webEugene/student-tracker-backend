@@ -17,8 +17,13 @@ export interface IParams {
   version?: string | number;
   language?: string;
   public_key?: string;
+  result_url?: string;
+  server_url?: string;
+  data?: string;
+  signature?: string;
 }
 
+// eslint-disable-next-line no-unused-vars
 enum Languages {
   RU = 'ru',
   UK = 'uk',
@@ -54,7 +59,7 @@ export class LiqPayLib implements ILiqPayInterface {
     }
 
     params.public_key = this.public_key;
-
+    console.log(params);
     const data: string = Buffer.from(JSON.stringify(params)).toString('base64');
     const signature: string = this.strToSign(
       `${this.private_key}${data}${this.private_key}`,

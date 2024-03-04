@@ -50,10 +50,12 @@ export class PaymentsService {
       order_id: `${Math.floor(Math.random() * 99999)}`,
       version: '3',
       language: 'uk',
+      result_url: 'http://192.168.100.9:8080/',
+      server_url:
+        'https://f2fe-159-205-118-49.ngrok-free.app/api/v1/payments/server-url',
     });
   }
   async handleServerCallback(signature, data) {
-    console.log(signature, data);
     const liqpay: LiqPayLib = new LiqPayLib(
       'sandbox_i42202792679',
       'sandbox_UBJkt3YhKKiM4Jlbkeox4sKB3jSfdJzgdY8XDKqn',
@@ -66,6 +68,22 @@ export class PaymentsService {
     } else {
       console.log('no');
     }
+  }
+
+  async handleServerUrl(data: any, signature: any) {
+    const liqpay: LiqPayLib = new LiqPayLib(
+      'sandbox_i42202792679',
+      'sandbox_UBJkt3YhKKiM4Jlbkeox4sKB3jSfdJzgdY8XDKqn',
+    );
+    console.log(data, signature);
+    const result = await liqpay.api('request', {
+      version: '3',
+      action: 'pay',
+      order_id: `${Math.floor(Math.random() * 99999)}`,
+      data,
+      signature,
+    });
+    console.log(result);
   }
   // async createPaymentFondy(preparePaymentDto: PreparePaymentDto) {
   //   const fondyPassword = 'nl7TGLjzzs4OVs8PI3bAfLSFOEgRutaL';

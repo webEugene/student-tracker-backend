@@ -28,6 +28,11 @@ export class PaymentsController {
     await this.paymentService.handleServerCallback(signature, data);
   }
 
+  @Post('/server-url')
+  async handleServerCallback(@Res() res: any): Promise<void> {
+    const { signature, data } = res.req.body;
+    await this.paymentService.handleServerUrl(data, signature);
+  }
   // @Post('/callback')
   // @Redirect(
   //   'http://localhost:8080/profile/9aae70c0-ec34-4e89-8871-8be612858e18',
