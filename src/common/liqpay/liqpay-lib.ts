@@ -180,4 +180,9 @@ export class LiqPayLib implements ILiqPayInterface {
     );
     return { data: data, signature: signature };
   }
+
+  decodeDataPayment(data: string): Object {
+    let buff = Buffer.from(data, 'base64');
+    return buff.toString('utf-8');
+  }
 }

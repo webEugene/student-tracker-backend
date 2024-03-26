@@ -47,11 +47,12 @@ export class TeachersService {
       );
     }
 
-    const findTeacherByNameAndSurname: Teacher = await this.findTeacherByNameAndSurname(
-      createTeacherDto.name,
-      createTeacherDto.surname,
-      createTeacherDto.company_id,
-    );
+    const findTeacherByNameAndSurname: Teacher =
+      await this.findTeacherByNameAndSurname(
+        createTeacherDto.name,
+        createTeacherDto.surname,
+        createTeacherDto.company_id,
+      );
 
     if (
       findTeacherByNameAndSurname &&
