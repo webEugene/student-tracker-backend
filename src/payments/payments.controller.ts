@@ -28,34 +28,9 @@ export class PaymentsController {
     await this.paymentService.handleServerCallback(signature, data);
   }
 
-  // @Post('/callback')
-  // @Redirect(
-  //   'http://localhost:8080/profile/9aae70c0-ec34-4e89-8871-8be612858e18',
-  // ) // Redirect to success page
-  // // eslint-disable-next-line @typescript-eslint/no-empty-function
-  // async handleCallback() {
-  //   console.log('handleCallback');
-  // }
-  //
-  // @Post('/server-callback')
-  // async handleServerCallback(@Res() res: any): Promise<void> {
-  //   const {
-  //     currency,
-  //     actual_amount,
-  //     order_status,
-  //     order_time,
-  //     order_id,
-  //     payment_id,
-  //     signature,
-  //   } = res.req.body;
-  //   await this.paymentService.handleServerCallback({
-  //     currency,
-  //     actual_amount,
-  //     order_status,
-  //     order_time,
-  //     order_id,
-  //     payment_id,
-  //     signature,
-  //   });
-  // }
+  @Post('/server-url')
+  async handleServerCallback(@Res() res: any): Promise<void> {
+    const { signature, data } = res.req.body;
+    await this.paymentService.handleServerUrl(data, signature);
+  }
 }
