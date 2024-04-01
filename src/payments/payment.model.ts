@@ -33,10 +33,10 @@ export class Payment extends Model<Payment> {
     description: 'Payment ID got after payment',
   })
   @Column({
-    type: DataType.INTEGER,
+    type: DataType.BIGINT,
     allowNull: false,
   })
-  payment_id: number;
+  payment_id: bigint;
 
   @ApiProperty({ example: 'success', description: 'Type status payment' })
   @Column({
@@ -91,10 +91,10 @@ export class Payment extends Model<Payment> {
     description: 'transaction ID of payment',
   })
   @Column({
-    type: DataType.STRING,
+    type: DataType.BIGINT,
     allowNull: false,
   })
-  transaction_id: string;
+  transaction_id: bigint;
 
   @ApiProperty({
     example: '7574b0916a4dba9c9cb2ed7d86de1a254996180e',

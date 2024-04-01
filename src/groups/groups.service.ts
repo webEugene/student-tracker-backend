@@ -21,6 +21,7 @@ import exceptionMessages from './enum/exeptionMessages.enum';
 @Injectable()
 export class GroupsService {
   constructor(
+    // eslint-disable-next-line no-unused-vars
     @Inject('GROUP_REPOSITORY') private groupRepository: typeof Group,
   ) {}
 
