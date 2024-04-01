@@ -20,7 +20,8 @@ import { PaymentsModule } from './payments/payments.module';
 import { PlansModule } from './plans/plans.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
-import {MailerModule} from "./mailer/mailer.module";
+import { MailerModule } from './mailer/mailer.module';
+import { PaymentsController } from './payments/payments.controller';
 
 @Module({
   controllers: [
@@ -30,6 +31,7 @@ import {MailerModule} from "./mailer/mailer.module";
     UsersController,
     CompanyController,
     GroupsController,
+    PaymentsController,
   ],
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),

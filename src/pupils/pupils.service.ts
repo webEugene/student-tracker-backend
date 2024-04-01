@@ -25,13 +25,14 @@ import { ChangeGroupDto } from './dto/change-group.dto';
 import exceptionMessages from './enum/exceptionMessages.enum';
 import permissionsPupil from '../common/enums/permissionPupil.enum';
 import planEnum from '../common/enums/plan.enum';
-import permissionsTeacher from '../common/enums/permissionTeacher.enum';
-import {Company} from "../company/company.model";
+import { Company } from '../company/company.model';
 
 @Injectable()
 export class PupilsService {
   constructor(
+    // eslint-disable-next-line no-unused-vars
     @Inject('PUPIL_REPOSITORY') private pupilRepository: typeof Pupil,
+    // eslint-disable-next-line no-unused-vars
     private imageService: ImagesService,
   ) {}
 
@@ -54,11 +55,12 @@ export class PupilsService {
       );
     }
 
-    const findPupilByNameAndSurname: Pupil = await this.findPupilByNameAndSurname(
-      createPupilDto.name,
-      createPupilDto.surname,
-      createPupilDto.company_id,
-    );
+    const findPupilByNameAndSurname: Pupil =
+      await this.findPupilByNameAndSurname(
+        createPupilDto.name,
+        createPupilDto.surname,
+        createPupilDto.company_id,
+      );
     if (
       findPupilByNameAndSurname &&
       findPupilByNameAndSurname.name === createPupilDto.name &&

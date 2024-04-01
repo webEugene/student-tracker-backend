@@ -16,9 +16,8 @@ export class CompanyService {
 
   async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
     try {
-      const createdCompanyData = await this.companyRepository.create(
-        createCompanyDto,
-      );
+      const createdCompanyData =
+        await this.companyRepository.create(createCompanyDto);
       this.imageService.createDirectory(createdCompanyData.id);
 
       return createdCompanyData;
@@ -68,5 +67,8 @@ export class CompanyService {
         id: company.id,
       },
     });
+  }
+  async updateTariffPlan(payment_id, company_id, createdAt) {
+    console.log(payment_id, company_id, createdAt);
   }
 }
