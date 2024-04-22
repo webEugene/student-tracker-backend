@@ -181,13 +181,9 @@ export class UsersService {
         },
         {
           model: Company,
-          attributes: ['company'],
           include: [
             {
               model: Plan,
-            },
-            {
-              model: Payment,
             },
           ],
         },
@@ -226,14 +222,18 @@ export class UsersService {
     }
   }
 
-  async resetPassword(id: string, company_id: string, password: string): Promise<[number, User[]]> {
+  async resetPassword(
+    id: string,
+    company_id: string,
+    password: string,
+  ): Promise<[number, User[]]> {
     try {
       return await this.userRepository.update(
-          { password },
-          {
-            where: { id, company_id },
-            returning: true,
-          },
+        { password },
+        {
+          where: { id, company_id },
+          returning: true,
+        },
       );
     } catch (error) {
       if (error.parent.code === '23505') {

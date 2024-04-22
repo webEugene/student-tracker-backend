@@ -1,5 +1,4 @@
 import {
-  ConflictException,
   Inject,
   Injectable,
   InternalServerErrorException,
@@ -10,8 +9,6 @@ import { CreateLiqpayDto } from './dto/create-liqpay-dto';
 import { v4 as uuidv4 } from 'uuid';
 import planEnum from '../common/enums/plan.enum';
 import { CompanyService } from '../company/company.service';
-import { Group } from '../groups/groups.model';
-import exceptionMessages from '../groups/enum/exeptionMessages.enum';
 
 interface IPaymentDataSave {
   payment_id: bigint;
@@ -26,6 +23,20 @@ interface IPaymentDataSave {
   plan: number;
   company_id: string;
 }
+
+type DecodedDataPaymentType = {
+  readonly payment_id: bigint;
+  readonly status: string;
+  readonly order_id: string;
+  readonly liqpay_order_id: string;
+  readonly amount: string;
+  readonly currency: string;
+  readonly end_date: string;
+  readonly transaction_id: bigint;
+  readonly signature: string;
+  readonly plan: number;
+  readonly company_id: string;
+};
 
 @Injectable()
 export class PaymentsService {
@@ -71,35 +82,44 @@ export class PaymentsService {
       `${process.env.PRIVATE_KEY}${data}${process.env.PRIVATE_KEY}`,
     );
     const isValidSignature: boolean = createSignature === signature;
-    const decodedDataPayment: Object = liqpay.decodeDataPayment(data);
+    const decodedDataPayment: DecodedDataPaymentType =
+      liqpay.decodeDataPayment(data);
 
     if (!isValidSignature) {
       throw new Error('Signature is wrong');
     }
+    const rr = liqpay.api('request', {
+      action: 'status',
+      version: '3',
+      order_id: decodedDataPayment.order_id,
+    });
 
-    const paymentDataForSave: IPaymentDataSave = {
-      payment_id: decodedDataPayment['payment_id'],
-      status: decodedDataPayment['status'],
-      order_id: decodedDataPayment['order_id'],
-      liqpay_order_id: decodedDataPayment['liqpay_order_id'],
-      amount: decodedDataPayment['amount'].toString(),
-      currency: decodedDataPayment['currency'],
-      payment_time: decodedDataPayment['end_date'].toString(),
-      transaction_id: decodedDataPayment['transaction_id'],
-      signature,
-      plan: this.planType,
-      company_id: this.companyId,
-    };
-    console.log(paymentDataForSave);
-    try {
-      await this.paymentRepository.create(paymentDataForSave);
-      await this.updateCompanyTariff(
-        paymentDataForSave.payment_id,
-        this.companyId,
-      );
-    } catch (e) {
-      throw new InternalServerErrorException();
-    }
+    console.log(decodedDataPayment, rr);
+
+    console.log(decodedDataPayment);
+    // const paymentDataForSave: IPaymentDataSave = {
+    //   payment_id: decodedDataPayment.payment_id,
+    //   status: decodedDataPayment.status,
+    //   order_id: decodedDataPayment.order_id,
+    //   liqpay_order_id: decodedDataPayment.liqpay_order_id,
+    //   amount: decodedDataPayment.amount.toString(),
+    //   currency: decodedDataPayment.currency,
+    //   payment_time: decodedDataPayment.end_date.toString(),
+    //   transaction_id: decodedDataPayment.transaction_id,
+    //   signature,
+    //   plan: this.planType,
+    //   company_id: this.companyId,
+    // };
+    // console.log(paymentDataForSave);
+    // try {
+    //   await this.paymentRepository.create(paymentDataForSave);
+    //   await this.updateCompanyTariff(
+    //     paymentDataForSave.payment_id,
+    //     this.companyId,
+    //   );
+    // } catch (e) {
+    //   throw new InternalServerErrorException();
+    // }
   }
 
   async findPaymentByPaymentId(payment_id: bigint, company_id: string) {
@@ -124,5 +144,13 @@ export class PaymentsService {
         getPayment.createdAt,
       );
     }
+  }
+
+  async findAllPaymentsByCompanyId(company_id: string): Promise<Payment[]> {
+    return await this.paymentRepository.findAll({
+      where: {
+        company_id,
+      },
+    });
   }
 }

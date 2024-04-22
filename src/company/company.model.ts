@@ -72,6 +72,17 @@ export class Company extends Model<Company, ICompanyAttr> {
   })
   tariff_permission: number;
 
+  @ApiProperty({
+    example: '0',
+    description: 'Plan as number',
+  })
+  @Column({
+    type: DataType.INTEGER,
+    allowNull: true,
+    defaultValue: null,
+  })
+  payment_status: number;
+
   @HasMany(() => Teacher, {
     onDelete: 'CASCADE',
     hooks: true,

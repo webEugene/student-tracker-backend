@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsUUID } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsUUID } from 'class-validator';
 
 export class ChangeCompanyTariffPlanDto {
   @ApiProperty({
@@ -17,4 +17,12 @@ export class ChangeCompanyTariffPlanDto {
   @IsUUID()
   @IsNotEmpty()
   readonly plan_id: string;
+
+  @ApiProperty({
+    example: '0',
+    description: 'Plan as number',
+  })
+  @IsNumber()
+  @IsNotEmpty()
+  readonly plan: number;
 }
