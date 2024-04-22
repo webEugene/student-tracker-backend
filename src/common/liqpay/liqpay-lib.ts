@@ -25,9 +25,31 @@ export interface IParams {
 
 // eslint-disable-next-line no-unused-vars
 enum Languages {
+  // eslint-disable-next-line no-unused-vars
   UK = 'uk',
+  // eslint-disable-next-line no-unused-vars
   EN = 'en',
 }
+
+type DecodedDataPaymentType = {
+  readonly payment_id: bigint;
+  readonly status: string;
+  readonly order_id: string;
+  readonly liqpay_order_id: string;
+  readonly amount: string;
+  readonly currency: string;
+  readonly end_date: string;
+  readonly transaction_id: bigint;
+  readonly signature: string;
+  readonly plan: number;
+  readonly company_id: string;
+};
+
+type CnbObjectType = {
+  readonly data: string;
+  readonly signature: string;
+};
+
 export class LiqPayLib implements ILiqPayInterface {
   public_key: string;
   private_key: string;
@@ -141,7 +163,7 @@ export class LiqPayLib implements ILiqPayInterface {
     return params;
   }
 
-  cnbForm(params: IParams) {
+  cnbForm(params: IParams): string {
     let buttonText = this.buttonTranslations[Languages.UK];
     if (params.language) {
       buttonText =
@@ -164,23 +186,23 @@ export class LiqPayLib implements ILiqPayInterface {
     `;
   }
 
-  cnbSignature(params: IParams) {
+  cnbSignature(params: IParams): string {
     params = this.cnbParams(params);
     const data: string = Buffer.from(JSON.stringify(params)).toString('base64');
     return this.strToSign(`${this.private_key}${data}${this.private_key}`);
   }
 
-  cnbObject(params: IParams): object {
+  cnbObject(params: IParams): CnbObjectType {
     params.language = params.language || Languages.UK;
     params = this.cnbParams(params);
-    const data = Buffer.from(JSON.stringify(params)).toString('base64');
-    const signature = this.strToSign(
+    const data: string = Buffer.from(JSON.stringify(params)).toString('base64');
+    const signature: string = this.strToSign(
       `${this.private_key}${data}${this.private_key}`,
     );
     return { data: data, signature: signature };
   }
 
-  decodeDataPayment(data: string): object | string {
+  decodeDataPayment(data: string): DecodedDataPaymentType {
     let buff = Buffer.from(data, 'base64');
     const decodedDataPayment: string = buff.toString('utf-8');
     return JSON.parse(decodedDataPayment);

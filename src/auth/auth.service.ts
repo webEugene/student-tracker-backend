@@ -11,10 +11,10 @@ import { User } from '../users/users.model';
 import { AuthLoginDto } from './dto/auth-login.dto';
 import { AuthRegisterDto } from './dto/auth-register.dto';
 import { CompanyService } from '../company/company.service';
-import {ForgetPasswordDto} from "./dto/forget-password.dto";
-import * as process from "process";
-import { MailerService } from "../mailer/mailer.service";
-import {ResetPasswordDto} from "./dto/reset-password.dto";
+import { ForgetPasswordDto } from './dto/forget-password.dto';
+import * as process from 'process';
+import { MailerService } from '../mailer/mailer.service';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +31,9 @@ export class AuthService {
   }
 
   async registration(registerDto: AuthRegisterDto) {
-    const hasCompany = await this.companyService.findOne(registerDto.company);
+    const hasCompany = await this.companyService.findCompanyByName(
+      registerDto.company,
+    );
 
     if (hasCompany) {
       throw new HttpException(
@@ -100,7 +102,9 @@ export class AuthService {
     return user;
   }
 
-  async forgetPassword(emailDTO: ForgetPasswordDto): Promise<{ status: HttpStatus.CREATED }> {
+  async forgetPassword(
+    emailDTO: ForgetPasswordDto,
+  ): Promise<{ status: HttpStatus.CREATED }> {
     const user: User = await this.userService.getUserByEmail(emailDTO.email);
 
     if (!user) {
@@ -112,14 +116,14 @@ export class AuthService {
       company_id: user.company_id,
     };
 
-    const resetToken: string = await this.jwtService.signAsync(
-        payload,
-        {
-          expiresIn: '10m'
-        }
-    );
+    const resetToken: string = await this.jwtService.signAsync(payload, {
+      expiresIn: '10m',
+    });
 
-    await this.mailerService.sendMail(`${user.name} ${user.surname}`, `${process.env.TEST_FRONT_HOST}/reset-password?resetToken=${resetToken}`);
+    await this.mailerService.sendMail(
+      `${user.name} ${user.surname}`,
+      `${process.env.TEST_FRONT_HOST}/reset-password?resetToken=${resetToken}`,
+    );
 
     return {
       status: HttpStatus.CREATED,
@@ -129,10 +133,13 @@ export class AuthService {
   async verifyToken(token: string) {
     try {
       return await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET_NAME
+        secret: process.env.JWT_SECRET_NAME,
       });
     } catch (e) {
-      throw new HttpException('Token has expired or incorrect!', HttpStatus.FORBIDDEN);
+      throw new HttpException(
+        'Token has expired or incorrect!',
+        HttpStatus.FORBIDDEN,
+      );
     }
   }
 
@@ -143,7 +150,7 @@ export class AuthService {
     // Check if user exist
     const getUser: User = await this.userService.findOneUser({
       id: verifiedToken.id,
-      company_id: verifiedToken.company_id
+      company_id: verifiedToken.company_id,
     });
 
     if (!getUser) {
@@ -154,10 +161,15 @@ export class AuthService {
     const hashPassword = await bcrypt.hash(reset.password, 5);
 
     // Update password
-    const updatedUserPassword: [number, User[]] =  await this.userService.resetPassword(getUser.id, getUser.company_id, hashPassword);
+    const updatedUserPassword: [number, User[]] =
+      await this.userService.resetPassword(
+        getUser.id,
+        getUser.company_id,
+        hashPassword,
+      );
 
     return {
       message: updatedUserPassword[1][0].email,
-    }
+    };
   }
 }

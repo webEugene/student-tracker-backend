@@ -13,7 +13,12 @@ export class PaymentsController {
   ): Promise<string> {
     return this.paymentService.createPaymentLiqpay(createLiqpayDto);
   }
-
+  @Post('/callback-url')
+  async handleCallback(@Res() res: any) {
+    // const { signature, data } = res.req.body;
+    console.log(res.req.body);
+    // await this.paymentService.handleServerCallback(signature, data);
+  }
   @Post('/server-url')
   async handleServerCallback(@Res() res: any): Promise<void> {
     const { signature, data } = res.req.body;
