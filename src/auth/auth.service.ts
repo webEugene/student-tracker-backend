@@ -15,6 +15,7 @@ import { ForgetPasswordDto } from './dto/forget-password.dto';
 import * as process from 'process';
 import { MailerService } from '../mailer/mailer.service';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { Company } from '../company/company.model';
 
 @Injectable()
 export class AuthService {
@@ -41,7 +42,7 @@ export class AuthService {
         HttpStatus.BAD_REQUEST,
       );
     }
-    const company = await this.companyService.create({
+    const company: Company = await this.companyService.create({
       company: registerDto.company,
       plan_id: registerDto.plan_id,
     });
