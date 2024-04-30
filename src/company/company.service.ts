@@ -10,7 +10,6 @@ import { Company } from './company.model';
 import { ImagesService } from '../images/images.service';
 import { ChangeCompanyTariffPlanDto } from './dto/change-tariff.dto';
 
-// eslint-disable-next-line no-unused-vars
 enum PaymentStatusEnum {
   FREE,
   UNPAID,
@@ -73,7 +72,9 @@ export class CompanyService {
     }
   }
 
-  async changeTariffPlan(changeTariffPlanDto: ChangeCompanyTariffPlanDto) {
+  async changeTariffPlan(
+    changeTariffPlanDto: ChangeCompanyTariffPlanDto,
+  ): Promise<{ status: number }> {
     const company: Company = await this.findCompanyById(
       changeTariffPlanDto.company_id,
     );
@@ -87,10 +88,18 @@ export class CompanyService {
       changeTariffPlanDto.plan === 0
         ? PaymentStatusEnum.FREE
         : PaymentStatusEnum.UNPAID;
+
+    const getDate: Date = new Date();
+    const currentDate: string = new Date().toISOString();
+    const addOneMonth: number = getDate.setMonth(getDate.getMonth() + 1);
+    const dateToISO: string = new Date(addOneMonth).toISOString();
+
     const updateTariffStatus: number[] = await this.companyRepository.update(
       {
         plan_id: changeTariffPlanDto.plan_id,
         payment_status,
+        tariff_start_date: currentDate,
+        tariff_end_date: dateToISO,
       },
       {
         where: {
