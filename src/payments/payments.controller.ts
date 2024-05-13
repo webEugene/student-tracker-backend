@@ -24,4 +24,9 @@ export class PaymentsController {
     const { signature, data } = res.req.body;
     await this.paymentService.handleServerUrl(data, signature);
   }
+
+  @Post('/request-result')
+  async handleRequestResult(@Body() order_id: string): Promise<void> {
+    await this.paymentService.handleRequestResult(order_id);
+  }
 }

@@ -14,6 +14,7 @@ enum PaymentStatusEnum {
   FREE,
   UNPAID,
   PAID,
+  WAITING,
 }
 
 export class CompanyService {
@@ -117,9 +118,5 @@ export class CompanyService {
         status: 204,
       };
     }
-  }
-
-  async updateTariffPlan(payment_id, company_id, createdAt) {
-    console.log(payment_id, company_id, createdAt);
   }
 }

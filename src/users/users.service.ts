@@ -27,6 +27,9 @@ import { RoleEnum } from '../roles/enum/role.enum';
 import planEnum from '../common/enums/plan.enum';
 import exceptionMessages from './enum/exceptionMessages.enum';
 import permissionsUser from '../common/enums/permissionUser.enum';
+import { PaymentsService } from '../payments/payments.service';
+import PaymentList from './type/payment-list.type';
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -34,6 +37,7 @@ export class UsersService {
     private roleService: RolesService,
     private visitsService: VisitsService,
     private imagesService: ImagesService,
+    private paymentsService: PaymentsService,
   ) {}
 
   async registerAdmin(dto: AuthRegisterDto): Promise<User> {
@@ -274,5 +278,47 @@ export class UsersService {
     this.imagesService.removeCompanyAvatarFolder(deleteEverything.company_id);
     await User.destroy({ where: { id: deleteEverything.id } });
     await Company.destroy({ where: { id: deleteEverything.company_id } });
+  }
+
+  async getPaymentsListAdmin(
+    findOneUserDto: IdAndCompanyIdDto,
+  ): Promise<PaymentList[]> {
+    const admin: User = await this.userRepository.findOne({
+      where: {
+        id: findOneUserDto.id,
+        company_id: findOneUserDto.company_id,
+      },
+      attributes: { exclude: ['password'] },
+      include: [
+        {
+          model: Company,
+          attributes: [
+            'payment_status',
+            'tariff_start_date',
+            'tariff_end_date',
+          ],
+        },
+      ],
+    });
+
+    let structurePaymentResponse: PaymentList[] = [];
+
+    const getPayments: Payment[] =
+      await this.paymentsService.findAllPaymentsByCompanyId(admin.company_id);
+
+    if (getPayments.length) {
+      getPayments.forEach(payment => {
+        structurePaymentResponse.push({
+          amount: payment.amount,
+          currency: payment.currency,
+          status: admin.company.payment_status,
+          plan: payment.plan,
+          tariff_start_date: admin.company.tariff_start_date,
+          tariff_end_date: admin.company.tariff_end_date,
+        });
+      });
+    }
+
+    return structurePaymentResponse;
   }
 }
