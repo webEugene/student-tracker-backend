@@ -10,6 +10,7 @@ import { VisitsModule } from '../visits/visits.module';
 import { ImagesModule } from '../images/images.module';
 import { DatabaseModule } from '../database/database.module';
 import { usersProviders } from './users.providers';
+import { PaymentsModule } from '../payments/payments.module';
 
 @Module({
   controllers: [UsersController],
@@ -22,6 +23,7 @@ import { usersProviders } from './users.providers';
     PupilsModule,
     VisitsModule,
     ImagesModule,
+    PaymentsModule,
     forwardRef(() => AuthModule),
   ],
   exports: [UsersService],

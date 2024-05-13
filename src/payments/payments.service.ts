@@ -10,6 +10,13 @@ import { v4 as uuidv4 } from 'uuid';
 import planEnum from '../common/enums/plan.enum';
 import { CompanyService } from '../company/company.service';
 
+type PreSavePayment = {
+  readonly company_id: string;
+  readonly plan: number;
+  readonly amount: string;
+  readonly currency: string;
+};
+
 interface IPaymentDataSave {
   payment_id: bigint;
   status: string;
@@ -38,10 +45,15 @@ type DecodedDataPaymentType = {
   readonly company_id: string;
 };
 
+enum PaymentStatusEnum {
+  FREE,
+  UNPAID,
+  PAID,
+  WAITING,
+}
+
 @Injectable()
 export class PaymentsService {
-  private companyId: string;
-  private planType: number;
   constructor(
     // eslint-disable-next-line no-unused-vars
     @Inject('PAYMENT_REPOSITORY') private paymentRepository: typeof Payment,
@@ -55,8 +67,14 @@ export class PaymentsService {
       `${process.env.PRIVATE_KEY}`,
     );
 
-    this.companyId = createLiqpayDto.company_id;
-    this.planType = createLiqpayDto.plan;
+    const paymentDataPreSave: PreSavePayment = {
+      company_id: createLiqpayDto.company_id,
+      plan: createLiqpayDto.plan,
+      amount: createLiqpayDto.amount,
+      currency: 'UAH',
+    };
+
+    await this.paymentRepository.create(paymentDataPreSave);
 
     return liqpay.cnbForm({
       action: 'pay',
@@ -69,7 +87,7 @@ export class PaymentsService {
       version: '3',
       language: 'uk',
       result_url: `http://192.168.100.9:8080/`,
-      server_url: `${process.env.LIQPAY_SERVER_URL}/api/v1/payments/server-url`,
+      server_url: `https://6825-159-205-103-222.ngrok-free.app/api/v1/payments/server-url`,
     });
   }
 
@@ -88,15 +106,7 @@ export class PaymentsService {
     if (!isValidSignature) {
       throw new Error('Signature is wrong');
     }
-    const rr = liqpay.api('request', {
-      action: 'status',
-      version: '3',
-      order_id: decodedDataPayment.order_id,
-    });
 
-    console.log(decodedDataPayment, rr);
-
-    console.log(decodedDataPayment);
     // const paymentDataForSave: IPaymentDataSave = {
     //   payment_id: decodedDataPayment.payment_id,
     //   status: decodedDataPayment.status,
@@ -107,10 +117,8 @@ export class PaymentsService {
     //   payment_time: decodedDataPayment.end_date.toString(),
     //   transaction_id: decodedDataPayment.transaction_id,
     //   signature,
-    //   plan: this.planType,
-    //   company_id: this.companyId,
     // };
-    // console.log(paymentDataForSave);
+    //
     // try {
     //   await this.paymentRepository.create(paymentDataForSave);
     //   await this.updateCompanyTariff(
@@ -131,26 +139,37 @@ export class PaymentsService {
     });
   }
 
-  async updateCompanyTariff(payment_id: bigint, company_id: string) {
-    const getPayment: Payment = await this.findPaymentByPaymentId(
-      payment_id,
-      company_id,
-    );
-
-    if (getPayment) {
-      await this.companyService.updateTariffPlan(
-        getPayment.payment_id,
-        getPayment.company_id,
-        getPayment.createdAt,
-      );
-    }
-  }
+  // async updateCompanyTariff(payment_id: bigint, company_id: string) {
+  //   const getPayment: Payment = await this.findPaymentByPaymentId(
+  //     payment_id,
+  //     company_id,
+  //   );
+  //
+  //   if (getPayment) {
+  //     await this.companyService.updateTariffPlan(
+  //       getPayment.payment_id,
+  //       getPayment.company_id,
+  //       getPayment.createdAt,
+  //     );
+  //   }
+  // }
 
   async findAllPaymentsByCompanyId(company_id: string): Promise<Payment[]> {
-    return await this.paymentRepository.findAll({
-      where: {
-        company_id,
-      },
+    console.log(company_id);
+    return await this.paymentRepository.findAll();
+  }
+
+  async handleRequestResult(order_id) {
+    const liqpay: LiqPayLib = new LiqPayLib(
+      `${process.env.PUBLIC_KEY}`,
+      `${process.env.PRIVATE_KEY}`,
+    );
+    const rr = await liqpay.api('request', {
+      action: 'status',
+      version: '3',
+      order_id,
     });
+
+    console.log(rr);
   }
 }

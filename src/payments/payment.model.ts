@@ -34,7 +34,7 @@ export class Payment extends Model<Payment> {
   })
   @Column({
     type: DataType.BIGINT,
-    allowNull: false,
+    allowNull: true,
   })
   payment_id: bigint;
 
@@ -48,7 +48,7 @@ export class Payment extends Model<Payment> {
   @ApiProperty({ example: '012345', description: 'Order ID got after payment' })
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
   })
   order_id: string;
 
@@ -58,7 +58,7 @@ export class Payment extends Model<Payment> {
   })
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
   })
   liqpay_order_id: string;
 
@@ -92,7 +92,7 @@ export class Payment extends Model<Payment> {
   })
   @Column({
     type: DataType.BIGINT,
-    allowNull: false,
+    allowNull: true,
   })
   transaction_id: bigint;
 
@@ -102,7 +102,7 @@ export class Payment extends Model<Payment> {
   })
   @Column({
     type: DataType.STRING,
-    allowNull: false,
+    allowNull: true,
   })
   signature: string;
 

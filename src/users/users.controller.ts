@@ -27,6 +27,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
+import PaymentList from './type/payment-list.type';
 
 @ApiBearerAuth('defaultBearerAuth')
 @ApiTags('Users')
@@ -118,5 +119,16 @@ export class UsersController {
     @Query() query: GetCompanyIdDto,
   ): Promise<User> {
     return await this.usersService.findUserAdmin({ id, ...query });
+  }
+
+  @Get('/admin/payments-list/:id')
+  @ApiOperation({ summary: 'Get all payments list for admin' })
+  @ApiResponse({ status: 200, type: User })
+  @UseGuards(JwtAuthGuard)
+  async getPaymentsListAdmin(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Query() query: GetCompanyIdDto,
+  ): Promise<PaymentList[]> {
+    return await this.usersService.getPaymentsListAdmin({ id, ...query });
   }
 }
