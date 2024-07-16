@@ -1,7 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import * as nodemailer from 'nodemailer';
-import { forgetPasswordTemplateUk } from './templates/forget-password-template-uk';
+import { forgetPasswordTemplateUK } from './templates/forget-password-template-uk';
+import { forgetPasswordTemplateEN } from './templates/forget-password-template-en';
 import { SentMessageInfo } from 'nodemailer/lib/smtp-transport';
+import { IMailOptions } from '../common/interfaces';
 
 @Injectable()
 export class MailerService {
@@ -20,14 +22,27 @@ export class MailerService {
     });
   }
 
-  async sendMail(userName: string, link: string): Promise<void> {
-    const mailOptions = {
-      from: 'pupils-tracker@gmail.com',
-      to: 'eugene.rich30@gmail.com',
-      subject: 'Reset password link',
-      html: forgetPasswordTemplateUk(userName, link),
+  async sendMail(
+    userName: string,
+    link: string,
+    locale: string,
+    userEmail: string,
+  ): Promise<void> {
+    const mailOptions: IMailOptions = {
+      from: `${process.env.MAIL_AUTH_USER}`,
+      to: `${userEmail}`,
+      subject:
+        locale === `uk` ? 'Силка на зміну паролю' : 'Reset password link',
+      html:
+        locale === `uk`
+          ? forgetPasswordTemplateUK(userName, link)
+          : forgetPasswordTemplateEN(userName, link),
     };
 
-    await this.transporter.sendMail(mailOptions);
+    try {
+      await this.transporter.sendMail(mailOptions);
+    } catch (e) {
+      throw new NotFoundException('inc_mailer');
+    }
   }
 }

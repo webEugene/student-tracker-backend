@@ -16,6 +16,11 @@ import * as process from 'process';
 import { MailerService } from '../mailer/mailer.service';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { Company } from '../company/company.model';
+import {
+  IGenerateTokenPayload,
+  IGenerateToken,
+  IForgetPasswordPayload,
+} from '../common/interfaces';
 
 @Injectable()
 export class AuthService {
@@ -26,43 +31,45 @@ export class AuthService {
     private mailerService: MailerService,
   ) {}
 
-  async login(loginDto: AuthLoginDto) {
-    const user = await this.validateUser(loginDto);
+  async login(loginDto: AuthLoginDto): Promise<IGenerateToken> {
+    const user: User = await this.validateUser(loginDto);
     return this.generateToken(user);
   }
 
-  async registration(registerDto: AuthRegisterDto) {
-    const hasCompany = await this.companyService.findCompanyByName(
+  async registration(registerDto: AuthRegisterDto): Promise<IGenerateToken> {
+    const hasCompany: Company = await this.companyService.findCompanyByName(
       registerDto.company,
     );
 
     if (hasCompany) {
-      throw new HttpException(
-        'Company already exists!',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new HttpException('exist_company', HttpStatus.BAD_REQUEST);
     }
+
+    const newAdmin: User = await this.userService.getUserByEmail(
+      registerDto.email,
+    );
+
+    if (newAdmin) {
+      throw new HttpException('exist_admin', HttpStatus.BAD_REQUEST);
+    }
+
     const company: Company = await this.companyService.create({
       company: registerDto.company,
       plan_id: registerDto.plan_id,
     });
 
-    const newAdmin = await this.userService.getUserByEmail(registerDto.email);
-    if (newAdmin) {
-      throw new HttpException('Admin already exists!', HttpStatus.BAD_REQUEST);
-    }
-
     const hashPassword = await bcrypt.hash(registerDto.password, 5);
-    const admin = await this.userService.registerAdmin({
+    const admin: User = await this.userService.registerAdmin({
       ...registerDto,
       password: hashPassword,
       company_id: company.id,
     });
+
     return this.generateToken(admin);
   }
 
-  private async generateToken(user: User) {
-    const payload = {
+  private async generateToken(user: User): Promise<IGenerateToken> {
+    const payload: IGenerateTokenPayload = {
       email: user.email,
       id: user.id,
       roles: user.roles,
@@ -83,35 +90,31 @@ export class AuthService {
     };
   }
 
-  private async validateUser(userDto: AuthLoginDto) {
-    const user = await this.userService.getUserByEmail(userDto.email);
-    const passwordEqual = await bcrypt.compare(userDto.password, user.password);
-
-    if (user === null && !passwordEqual) {
-      throw new UnauthorizedException({
-        message: 'Incorrect password and email',
-      });
-    }
+  private async validateUser(userDto: AuthLoginDto): Promise<User> {
+    const user: User = await this.userService.getUserByEmail(userDto.email);
 
     if (user === null) {
-      throw new UnauthorizedException({ message: 'Incorrect email' });
+      throw new UnauthorizedException({ message: 'inc_mail' });
     }
+
+    const passwordEqual = await bcrypt.compare(userDto.password, user.password);
+
     if (!passwordEqual) {
-      throw new UnauthorizedException({ message: 'Incorrect password' });
+      throw new UnauthorizedException({ message: 'inc_pass' });
     }
 
     return user;
   }
 
   async forgetPassword(
-    emailDTO: ForgetPasswordDto,
+    emailDto: ForgetPasswordDto,
   ): Promise<{ status: HttpStatus.CREATED }> {
-    const user: User = await this.userService.getUserByEmail(emailDTO.email);
+    const user: User = await this.userService.getUserByEmail(emailDto.email);
 
     if (!user) {
-      throw new HttpException('Email is not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('not_f_email', HttpStatus.NOT_FOUND);
     }
-    const payload = {
+    const payload: IForgetPasswordPayload = {
       id: user.id,
       email: user.email,
       company_id: user.company_id,
@@ -123,7 +126,9 @@ export class AuthService {
 
     await this.mailerService.sendMail(
       `${user.name} ${user.surname}`,
-      `${process.env.TEST_FRONT_HOST}/reset-password?resetToken=${resetToken}`,
+      `${process.env.TEST_FRONT_HOST}/reset-password?locale=${emailDto.locale}&resetToken=${resetToken}`,
+      `${emailDto.locale}`,
+      `${user.email}`,
     );
 
     return {
@@ -131,20 +136,17 @@ export class AuthService {
     };
   }
 
-  async verifyToken(token: string) {
+  async verifyToken(token: string): Promise<any> {
     try {
       return await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET_NAME,
       });
     } catch (e) {
-      throw new HttpException(
-        'Token has expired or incorrect!',
-        HttpStatus.FORBIDDEN,
-      );
+      throw new HttpException('token_expired', HttpStatus.FORBIDDEN);
     }
   }
 
-  async resetPassword(reset: ResetPasswordDto) {
+  async resetPassword(reset: ResetPasswordDto): Promise<{ message: string }> {
     // Verify token
     const verifiedToken = await this.verifyToken(reset.token);
 
@@ -155,7 +157,7 @@ export class AuthService {
     });
 
     if (!getUser) {
-      throw new HttpException('User is not found', HttpStatus.NOT_FOUND);
+      throw new HttpException('not_f_user', HttpStatus.NOT_FOUND);
     }
 
     // Create hashed password

@@ -40,9 +40,7 @@ export class GroupsController {
   @Patch()
   @ApiOperation({ summary: 'Change group' })
   @ApiResponse({ status: 200, type: Group })
-  async update(
-    @Body() updateGroupDto: UpdateGroupDto,
-  ): Promise<[number]> {
+  async update(@Body() updateGroupDto: UpdateGroupDto): Promise<[number]> {
     return await this.groupsService.update(updateGroupDto);
   }
 

@@ -25,7 +25,7 @@ export class CompanyService {
 
   async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
     try {
-      const createdCompanyData =
+      const createdCompanyData: Company =
         await this.companyRepository.create(createCompanyDto);
       this.imageService.createDirectory(createdCompanyData.id);
 
@@ -33,7 +33,7 @@ export class CompanyService {
     } catch (error) {
       if (error.code === '23505') {
         throw new ConflictException({
-          message: ['Company is already exists'],
+          message: ['exist_company'],
         });
       } else {
         throw new InternalServerErrorException();

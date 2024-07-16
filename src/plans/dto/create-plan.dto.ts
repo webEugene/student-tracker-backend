@@ -3,7 +3,6 @@ import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreatePlanDto {
   @ApiProperty({
-    // example: 'Premium',
     example: 0,
     description: 'Name of the plan',
   })

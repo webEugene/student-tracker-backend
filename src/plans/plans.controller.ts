@@ -1,5 +1,4 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Body, Controller, Get, Post } from '@nestjs/common';
 import { PlansService } from './plans.service';
 import {
   ApiBadRequestResponse,
@@ -15,7 +14,6 @@ import { CreatePlanDto } from './dto/create-plan.dto';
 export class PlansController {
   constructor(private readonly planService: PlansService) {}
 
-  // @UseGuards(JwtAuthGuard)
   @Get()
   @ApiOperation({ summary: 'Get all plans' })
   @ApiResponse({ status: 200, type: [Plan] })

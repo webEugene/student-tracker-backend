@@ -5,6 +5,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import path = require('path');
 // Sequelize
@@ -22,7 +23,7 @@ import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
 import { CreatePupilDto } from './dto/create-pupil.dto';
 import { UpdatePupilDto } from './dto/update-pupil-dto';
 import { ChangeGroupDto } from './dto/change-group.dto';
-import exceptionMessages from './enum/exceptionMessages.enum';
+import exceptionMessages from '../common/enums/exceptionMessages.enum';
 import permissionsPupil from '../common/enums/permissionPupil.enum';
 import planEnum from '../common/enums/plan.enum';
 import { Company } from '../company/company.model';
@@ -75,7 +76,7 @@ export class PupilsService {
   }
 
   async deletePupil(deletePupilDto: IdAndCompanyIdDto): Promise<void> {
-    const deletedPupil = await this.findOne(
+    const deletedPupil: Pupil = await this.findOne(
       deletePupilDto.id,
       deletePupilDto.company_id,
     );
@@ -101,13 +102,15 @@ export class PupilsService {
     id: string,
     updatePupilDto: UpdatePupilDto,
   ): Promise<[number, Pupil[]]> {
-    return await this.pupilRepository.update(
+    const pupilUpdate = await this.pupilRepository.update(
       { ...updatePupilDto },
       {
         where: { id, company_id: updatePupilDto.company_id },
         returning: true,
       },
     );
+
+    return pupilUpdate;
   }
 
   async changePupilGroup(
@@ -172,7 +175,7 @@ export class PupilsService {
   }
 
   async findOne(id: string, company_id: string): Promise<Pupil> {
-    return this.pupilRepository.findOne({
+    const pupil: Promise<Pupil> = this.pupilRepository.findOne({
       include: [
         {
           model: Group,
@@ -193,6 +196,14 @@ export class PupilsService {
         company_id,
       },
     });
+
+    if (!pupil) {
+      throw new NotFoundException({
+        message: 'not_f_pupil',
+      });
+    }
+
+    return pupil;
   }
 
   async uploadPupilAvatar(
