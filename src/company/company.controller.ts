@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Param,
-  ParseUUIDPipe,
-  Patch,
-  Post,
-  Put,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Body, Controller, Patch, Post, ValidationPipe } from '@nestjs/common';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { CompanyService } from './company.service';
 import {
@@ -35,7 +26,7 @@ export class CompanyController {
   })
   @ApiForbiddenResponse({ description: 'Forbidden.' })
   @ApiBadRequestResponse({ description: 'Bad Request.' })
-  async create(@Body() createCompanyDto: CreateCompanyDto) {
+  async create(@Body() createCompanyDto: CreateCompanyDto): Promise<Company> {
     return await this.companyService.create(createCompanyDto);
   }
 
@@ -44,7 +35,7 @@ export class CompanyController {
   @ApiResponse({ status: 204, type: Company })
   async changeTariffPlan(
     @Body(new ValidationPipe()) changeTariffPlanDto: ChangeCompanyTariffPlanDto,
-  ) {
+  ): Promise<{ status: number }> {
     return await this.companyService.changeTariffPlan(changeTariffPlanDto);
   }
 }

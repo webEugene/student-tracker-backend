@@ -16,7 +16,7 @@ import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
 import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
 import planEnum from '../common/enums/plan.enum';
 import permissionsGroup from '../common/enums/permissionsGroup.enum';
-import exceptionMessages from './enum/exeptionMessages.enum';
+import exceptionMessages from '../common/enums/exceptionMessages.enum';
 
 @Injectable()
 export class GroupsService {
@@ -67,7 +67,7 @@ export class GroupsService {
   }
 
   async findAllGroups(query: GetCompanyIdDto): Promise<Group[]> {
-    const groups = await this.groupRepository.findAll({
+    const groups: Group[] = await this.groupRepository.findAll({
       where: {
         company_id: query.company_id,
       },
@@ -85,7 +85,7 @@ export class GroupsService {
   }
 
   async onlyGroupsFind(query: GetCompanyIdDto): Promise<Group[]> {
-    const groups = await this.groupRepository.findAll({
+    const groups: Group[] = await this.groupRepository.findAll({
       where: {
         company_id: query.company_id,
       },
@@ -99,7 +99,7 @@ export class GroupsService {
   }
 
   async findOne(id: string, company_id: string): Promise<Group> {
-    const group = await this.groupRepository.findOne({
+    const group: Group = await this.groupRepository.findOne({
       where: {
         id,
         company_id,
@@ -109,18 +109,19 @@ export class GroupsService {
 
     if (!group) {
       throw new NotFoundException({
-        message: ['Group not found.'],
+        message: 'not_f_group',
       });
     }
 
     return group;
   }
 
-  async update(updateGroupDto: UpdateGroupDto) {
-    const group = await this.findOne(
+  async update(updateGroupDto: UpdateGroupDto): Promise<[number]> {
+    const group: Group = await this.findOne(
       updateGroupDto.id,
       updateGroupDto.company_id,
     );
+
     return await this.groupRepository.update(updateGroupDto, {
       where: {
         id: group.id,
@@ -130,7 +131,7 @@ export class GroupsService {
   }
 
   async remove(deleteGroupDto: IdAndCompanyIdDto): Promise<void> {
-    const group = await this.findOne(
+    const group: Group = await this.findOne(
       deleteGroupDto.id,
       deleteGroupDto.company_id,
     );

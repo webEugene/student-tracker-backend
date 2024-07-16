@@ -53,17 +53,7 @@ export class PupilsController {
   async createPupil(
     @Body(new ValidationPipe()) newPupilDto: CreatePupilDto,
   ): Promise<Pupil> {
-    const pupil = await this.pupilsService.createPupil(newPupilDto);
-    if (!pupil) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'Pupil has not been created due to unknown reason',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    return pupil;
+    return await this.pupilsService.createPupil(newPupilDto);
   }
 
   @Patch('/:id')

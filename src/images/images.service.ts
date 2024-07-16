@@ -25,7 +25,7 @@ export class ImagesService {
   }
 
   createDirectory(folderName: string): void | never {
-    const directoryExist = this.checkForExistence(folderName);
+    const directoryExist: boolean = this.checkForExistence(folderName);
     if (!directoryExist) {
       mkdir(
         `${this.PROFILES_AVATARS_DIR}/${folderName}`,
@@ -38,8 +38,8 @@ export class ImagesService {
   }
 
   checkForExistence(companyId: string, avatarPath?: string): boolean {
-    let isExist = false;
-    const fullPath = avatarPath
+    let isExist: boolean = false;
+    const fullPath: string = avatarPath
       ? `${this.PROFILES_AVATARS_DIR}/${companyId}/${avatarPath}`
       : `${this.PROFILES_AVATARS_DIR}/${companyId}`;
     promises
