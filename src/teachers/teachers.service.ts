@@ -5,6 +5,7 @@ import {
   Inject,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import path = require('path');
 // Models
@@ -18,7 +19,7 @@ import { UpdateTeacherDto } from './dto/update-teacher.dto';
 import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
 import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
 import planEnum from '../common/enums/plan.enum';
-import exceptionMessages from './enum/exceptionMessages.enum';
+import exceptionMessages from '../common/enums/exceptionMessages.enum';
 import permissionsTeacher from '../common/enums/permissionTeacher.enum';
 
 @Injectable()
@@ -82,7 +83,7 @@ export class TeachersService {
   }
 
   async deleteTeacher(deleteTeacherDto: IdAndCompanyIdDto): Promise<void> {
-    const teacher = await this.findOne(
+    const teacher: Teacher = await this.findOne(
       deleteTeacherDto.id,
       deleteTeacherDto.company_id,
     );
@@ -106,29 +107,46 @@ export class TeachersService {
     );
   }
   async findOne(id: string, company_id: string): Promise<Teacher> {
-    return this.teacherRepository.findOne({
+    const teacher: Promise<Teacher> = this.teacherRepository.findOne({
       where: {
         id,
         company_id,
       },
       include: [Group],
     });
+
+    if (!teacher) {
+      throw new NotFoundException({
+        message: 'not_f_teacher',
+      });
+    }
+
+    return teacher;
   }
 
   async updateTeacher(
     id: string,
     updateTeacherDto: UpdateTeacherDto,
-  ): Promise<[number, Teacher[]]> {
-    return await this.teacherRepository.update(
-      { ...updateTeacherDto },
-      {
-        where: { id, company_id: updateTeacherDto.company_id },
-        returning: true,
-      },
-    );
+  ): Promise<{ status: number }> {
+    const updateTeacherStatus: [number, Teacher[]] =
+      await this.teacherRepository.update(
+        { ...updateTeacherDto },
+        {
+          where: { id, company_id: updateTeacherDto.company_id },
+          returning: true,
+        },
+      );
+
+    if (updateTeacherStatus[0] !== 1) {
+      throw new HttpException('not_updated', HttpStatus.BAD_GATEWAY);
+    } else {
+      return {
+        status: 200,
+      };
+    }
   }
 
-  async getAllTeachers(query: GetCompanyIdDto) {
+  async getAllTeachers(query: GetCompanyIdDto): Promise<Teacher[]> {
     return await this.teacherRepository.findAll({
       include: { all: true },
       where: {
@@ -141,29 +159,35 @@ export class TeachersService {
     id: string,
     company_id: string,
     avatar_name: string,
-  ): Promise<[number, Teacher[]]> {
+  ): Promise<{ status: number }> {
     const extension: string = path.parse(avatar_name).ext;
-    const updatedAvatarName = `${id}${extension}`;
-    const getCurrentAvatarPath = await this.findOne(id, company_id);
+    const updatedAvatarName: string = `${id}${extension}`;
+    const getCurrentAvatarPath: Teacher = await this.findOne(id, company_id);
 
-    const ifFileExistInFolder = this.imageService.checkForExistence(
+    const ifFileExistInFolder: boolean = this.imageService.checkForExistence(
       company_id,
       getCurrentAvatarPath.avatar_path,
     );
-    if (getCurrentAvatarPath.avatar_path && !ifFileExistInFolder) {
-      return await this.teacherRepository.update(
-        { avatar_path: updatedAvatarName },
-        { where: { id, company_id }, returning: true },
-      );
-    } else {
+
+    if (!getCurrentAvatarPath.avatar_path && ifFileExistInFolder) {
       this.imageService.deleteAvatar(
         company_id,
         getCurrentAvatarPath.avatar_path,
       );
-      return await this.teacherRepository.update(
+    }
+
+    const updateTeacherStatus: [number, Teacher[]] =
+      await this.teacherRepository.update(
         { avatar_path: updatedAvatarName },
         { where: { id, company_id }, returning: true },
       );
+
+    if (updateTeacherStatus[0] !== 1) {
+      throw new HttpException('not_updated', HttpStatus.BAD_GATEWAY);
+    } else {
+      return {
+        status: 200,
+      };
     }
   }
 
@@ -171,11 +195,20 @@ export class TeachersService {
     id: string,
     avatar_path: string,
     company_id: string,
-  ): Promise<[number, Teacher[]]> {
+  ): Promise<{ status: number }> {
     this.imageService.deleteAvatar(company_id, avatar_path);
-    return await this.teacherRepository.update(
-      { avatar_path: null },
-      { where: { id, company_id }, returning: true },
-    );
+    const deleteAvatarStatus: [number, Teacher[]] =
+      await this.teacherRepository.update(
+        { avatar_path: null },
+        { where: { id, company_id }, returning: true },
+      );
+
+    if (deleteAvatarStatus[0] !== 1) {
+      throw new HttpException('not_updated', HttpStatus.BAD_GATEWAY);
+    } else {
+      return {
+        status: 200,
+      };
+    }
   }
 }

@@ -23,9 +23,9 @@ import { IdAndCompanyIdDto } from '../common/dto/id-and-company-id.dto';
 import { VisitsService } from '../visits/visits.service';
 import { ImagesService } from '../images/images.service';
 import { Payment } from '../payments/payment.model';
-import { RoleEnum } from '../roles/enum/role.enum';
+import RoleEnum from '../common/enums/role.enum';
 import planEnum from '../common/enums/plan.enum';
-import exceptionMessages from './enum/exceptionMessages.enum';
+import exceptionMessages from '../common/enums/exceptionMessages.enum';
 import permissionsUser from '../common/enums/permissionUser.enum';
 import { PaymentsService } from '../payments/payments.service';
 import PaymentList from './type/payment-list.type';
@@ -67,7 +67,7 @@ export class UsersService {
       );
     }
 
-    const isUserExist = await this.getUserByEmail(userDto.email);
+    const isUserExist: User = await this.getUserByEmail(userDto.email);
     if (isUserExist) {
       throw new ConflictException({
         message: [exceptionMessages.DuplicateError],
@@ -75,11 +75,11 @@ export class UsersService {
     }
 
     const hashPassword = await bcrypt.hash(userDto.password, 5);
-    const user = await this.userRepository.create({
+    const user: User = await this.userRepository.create({
       ...userDto,
       password: hashPassword,
     });
-    const role = await this.roleService.getRoleByValue(RoleEnum.USER);
+    const role: Role = await this.roleService.getRoleByValue(RoleEnum.USER);
 
     await user.$set('roles', [role.id]);
     user.roles = [role];
@@ -128,7 +128,7 @@ export class UsersService {
   }
 
   async findOneUser(findOneUserDto: IdAndCompanyIdDto): Promise<User> {
-    const user = await this.findOne(
+    const user: User = await this.findOne(
       findOneUserDto.id,
       findOneUserDto.company_id,
     );
@@ -142,7 +142,7 @@ export class UsersService {
   }
 
   async findOne(id: string, company_id: string): Promise<User> {
-    const user = this.userRepository.findOne({
+    const user: User = await this.userRepository.findOne({
       where: {
         id,
         company_id,
@@ -171,7 +171,7 @@ export class UsersService {
   }
 
   async findUserAdmin(findOneUserDto: IdAndCompanyIdDto): Promise<User> {
-    const admin = this.userRepository.findOne({
+    const admin: User = await this.userRepository.findOne({
       where: {
         id: findOneUserDto.id,
         company_id: findOneUserDto.company_id,
@@ -251,7 +251,10 @@ export class UsersService {
   }
 
   async deleteUser(deleteUserDto: IdAndCompanyIdDto): Promise<void> {
-    const user = await this.findOne(deleteUserDto.id, deleteUserDto.company_id);
+    const user: User = await this.findOne(
+      deleteUserDto.id,
+      deleteUserDto.company_id,
+    );
     try {
       await user.destroy();
     } catch (error) {
@@ -265,15 +268,15 @@ export class UsersService {
     }
   }
 
-  async deleteAdminAndCompany(deleteEverything: IdAndCompanyIdDto) {
-    // Delete visits
-    await this.visitsService.deletePupilVisits({
+  async deleteAdminAndCompany(
+    deleteEverything: IdAndCompanyIdDto,
+  ): Promise<void> {
+    await this.visitsService.deleteAllCompanyVisits({
       company_id: deleteEverything.company_id,
     });
-    // Delete all users created admin and current component
-    await Teacher.destroy({ where: { id: deleteEverything.id } });
-    await Pupil.destroy({ where: { id: deleteEverything.id } });
-    await Group.destroy({ where: { id: deleteEverything.id } });
+    await Teacher.destroy({ where: { id: deleteEverything.company_id } });
+    await Pupil.destroy({ where: { id: deleteEverything.company_id } });
+    await Group.destroy({ where: { id: deleteEverything.company_id } });
     // Delete company folder where avatars had been saved!
     this.imagesService.removeCompanyAvatarFolder(deleteEverything.company_id);
     await User.destroy({ where: { id: deleteEverything.id } });

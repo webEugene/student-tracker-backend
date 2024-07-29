@@ -53,17 +53,7 @@ export class TeachersController {
   async createTeacher(
     @Body(new ValidationPipe()) newTeacherDto: CreateTeacherDto,
   ): Promise<Teacher> {
-    const teacher = await this.teacherService.createTeacher(newTeacherDto);
-    if (!teacher) {
-      throw new HttpException(
-        {
-          status: HttpStatus.BAD_REQUEST,
-          error: 'Teacher has not been created due to unknown reason',
-        },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    return teacher;
+    return await this.teacherService.createTeacher(newTeacherDto);
   }
 
   @Patch('/:id')
@@ -72,7 +62,7 @@ export class TeachersController {
   async updateTeacher(
     @Param('id', ParseUUIDPipe) id: string,
     @Body(new ValidationPipe()) updateTeacherDto: UpdateTeacherDto,
-  ): Promise<[number, Teacher[]]> {
+  ): Promise<{ status: number }> {
     return await this.teacherService.updateTeacher(id, updateTeacherDto);
   }
 
@@ -119,7 +109,7 @@ export class TeachersController {
     @Param('id', ParseUUIDPipe) id: string,
     @UploadedFile() file,
     @Query() query: GetCompanyIdDto,
-  ): Promise<[number, Teacher[]]> {
+  ): Promise<{ status: number }> {
     return await this.teacherService.uploadTeacherAvatar(
       id,
       query.company_id,
@@ -132,7 +122,7 @@ export class TeachersController {
   async deletePupilAvatar(
     @Param('id', ParseUUIDPipe) id: string,
     @Query() query: DeleteAvatarDto,
-  ): Promise<[number, Teacher[]]> {
+  ): Promise<{ status: number }> {
     return await this.teacherService.deleteTeacherAvatar(
       id,
       query.avatar_path,

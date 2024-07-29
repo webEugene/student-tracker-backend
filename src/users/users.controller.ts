@@ -87,7 +87,7 @@ export class UsersController {
   async deleteAdminAndCompany(
     @Param('id', ParseUUIDPipe) id: string,
     @Query() query: GetCompanyIdDto,
-  ) {
+  ): Promise<void> {
     return await this.usersService.deleteAdminAndCompany({ id, ...query });
   }
 
