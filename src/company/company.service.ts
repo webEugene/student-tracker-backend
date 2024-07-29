@@ -115,7 +115,7 @@ export class CompanyService {
       );
     } else {
       return {
-        status: 204,
+        status: 200,
       };
     }
   }

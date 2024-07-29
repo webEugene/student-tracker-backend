@@ -16,6 +16,7 @@ interface IVisit {
   brought?: number;
   left_at?: string;
   took?: number;
+  pupil_id: string;
   came_confirmer: string;
   left_confirmer?: string;
 }

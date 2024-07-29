@@ -7,7 +7,6 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import path = require('path');
 // Sequelize
 import { Op } from 'sequelize';
 // Models
@@ -23,10 +22,13 @@ import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
 import { CreatePupilDto } from './dto/create-pupil.dto';
 import { UpdatePupilDto } from './dto/update-pupil-dto';
 import { ChangeGroupDto } from './dto/change-group.dto';
+import { DeletePupilVisitDto } from '../visits/dto/delete-pupil-visit.dto';
 import exceptionMessages from '../common/enums/exceptionMessages.enum';
 import permissionsPupil from '../common/enums/permissionPupil.enum';
 import planEnum from '../common/enums/plan.enum';
 import { Company } from '../company/company.model';
+import path = require('path');
+import { VisitsService } from '../visits/visits.service';
 
 @Injectable()
 export class PupilsService {
@@ -35,6 +37,7 @@ export class PupilsService {
     @Inject('PUPIL_REPOSITORY') private pupilRepository: typeof Pupil,
     // eslint-disable-next-line no-unused-vars
     private imageService: ImagesService,
+    private visitsService: VisitsService,
   ) {}
 
   async createPupil(createPupilDto: CreatePupilDto): Promise<Pupil> {
@@ -86,6 +89,12 @@ export class PupilsService {
         deletePupilDto.company_id,
         deletedPupil.avatar_path,
       );
+
+      await this.visitsService.deletePupilVisits({
+        pupil_id: deletedPupil.id,
+        company_id: deletePupilDto.company_id,
+      });
+
       await deletedPupil.destroy();
     } catch (error) {
       if (error.parent.code === '23503') {
@@ -102,15 +111,13 @@ export class PupilsService {
     id: string,
     updatePupilDto: UpdatePupilDto,
   ): Promise<[number, Pupil[]]> {
-    const pupilUpdate = await this.pupilRepository.update(
+    return await this.pupilRepository.update(
       { ...updatePupilDto },
       {
         where: { id, company_id: updatePupilDto.company_id },
         returning: true,
       },
     );
-
-    return pupilUpdate;
   }
 
   async changePupilGroup(
@@ -126,12 +133,13 @@ export class PupilsService {
     );
   }
 
-  async getAllPupils(query: GetCompanyIdDto) {
-    const date = new Date();
-    const day = (date.getDate() < 10 ? '0' : '') + date.getDate();
-    const month = (date.getMonth() + 1 < 10 ? '0' : '') + (date.getMonth() + 1);
-    const year = date.getFullYear();
-    const d = `${year}-${month}-${day}`;
+  async getAllPupils(query: GetCompanyIdDto): Promise<Pupil[]> {
+    const date: Date = new Date();
+    const day: string = (date.getDate() < 10 ? '0' : '') + date.getDate();
+    const month: string =
+      (date.getMonth() + 1 < 10 ? '0' : '') + (date.getMonth() + 1);
+    const year: number = date.getFullYear();
+    const d: string = `${year}-${month}-${day}`;
 
     return await this.pupilRepository.findAll({
       include: [
@@ -212,10 +220,10 @@ export class PupilsService {
     avatar_name: string,
   ): Promise<[number, Pupil[]]> {
     const extension: string = path.parse(avatar_name).ext;
-    const updatedAvatarName = `${id}${extension}`;
+    const updatedAvatarName: string = `${id}${extension}`;
 
-    const getCurrentAvatarPath = await this.findOne(id, company_id);
-    const ifFileExistInFolder = this.imageService.checkForExistence(
+    const getCurrentAvatarPath: Pupil = await this.findOne(id, company_id);
+    const ifFileExistInFolder: boolean = this.imageService.checkForExistence(
       company_id,
       getCurrentAvatarPath.avatar_path,
     );

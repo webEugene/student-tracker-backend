@@ -22,7 +22,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { DeleteVisitDto } from './dto/delete-visit.dto';
+import { DeleteVisitByCompanyDto } from './dto/delete-visit-by-company.dto';
 
 @ApiBearerAuth('defaultBearerAuth')
 @ApiTags('Visits')
@@ -54,12 +54,24 @@ export class VisitsController {
     return await this.visitsService.addLeftAtVisit(id, leftAtVisitDto);
   }
 
-  @Delete('/delete')
+  @Delete('/delete-all')
   @ApiOperation({ summary: 'Delete' })
   @ApiResponse({ status: 200, type: Visits })
-  async deletePupilVisits(
-    @Body(new ValidationPipe()) deleteVisitDto: DeleteVisitDto,
+  async deleteAllCompanyVisits(
+    @Body(new ValidationPipe())
+    deleteAllCompanyVisitsDto: DeleteVisitByCompanyDto,
   ): Promise<void> {
-    return await this.visitsService.deletePupilVisits(deleteVisitDto);
+    return await this.visitsService.deleteAllCompanyVisits(
+      deleteAllCompanyVisitsDto,
+    );
   }
+
+  // @Delete('/delete-pupil-visits')
+  // @ApiOperation({ summary: 'Delete' })
+  // @ApiResponse({ status: 200, type: Visits })
+  // async deletePupilVisits(
+  //   @Body(new ValidationPipe()) deleteVisitDto: DeleteVisitByCompanyDto,
+  // ): Promise<void> {
+  //   return await this.visitsService.deleteAllCompanyVisits(deleteVisitDto);
+  // }
 }

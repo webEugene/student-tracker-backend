@@ -2,7 +2,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Visits } from './visits.model';
 import { CreateCameVisitDto } from './dto/create-came-visit.dto';
 import { CreateLeftVisitDto } from './dto/create-left-visit.dto';
-import { DeleteVisitDto } from './dto/delete-visit.dto';
+import { DeleteVisitByCompanyDto } from './dto/delete-visit-by-company.dto';
+import { DeletePupilVisitDto } from './dto/delete-pupil-visit.dto';
 
 @Injectable()
 export class VisitsService {
@@ -24,13 +25,29 @@ export class VisitsService {
     );
   }
 
-  async deletePupilVisits(deleteVisitDto: DeleteVisitDto): Promise<void> {
-    const deletedAllPupilVisits = await this.visitRepository.findAll({
+  async deleteAllCompanyVisits(
+    deleteAllCompanyVisitsDto: DeleteVisitByCompanyDto,
+  ): Promise<void> {
+    const allPupilVisits: Visits[] = await this.visitRepository.findAll({
       where: {
-        company_id: deleteVisitDto.company_id,
+        company_id: deleteAllCompanyVisitsDto.company_id,
       },
     });
-    const selectVisitsIds = deletedAllPupilVisits.map(item => item.id);
+    const selectVisitsIds: string[] = allPupilVisits.map(item => item.id);
+
+    await Visits.destroy({ where: { id: selectVisitsIds } });
+  }
+
+  async deletePupilVisits(
+    deletePupilVisitDto: DeletePupilVisitDto,
+  ): Promise<void> {
+    const allPupilVisits: Visits[] = await this.visitRepository.findAll({
+      where: {
+        pupil_id: deletePupilVisitDto.pupil_id,
+        company_id: deletePupilVisitDto.company_id,
+      },
+    });
+    const selectVisitsIds: string[] = allPupilVisits.map(item => item.id);
 
     await Visits.destroy({ where: { id: selectVisitsIds } });
   }

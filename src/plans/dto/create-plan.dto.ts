@@ -10,7 +10,7 @@ export class CreatePlanDto {
   @IsNotEmpty()
   readonly plan: number;
 
-  @ApiProperty({ example: 'Lorem', description: 'Description plan' })
+  @ApiProperty({ example: 'Description plan', description: 'Description plan' })
   @IsString()
   @IsOptional()
   readonly description: string;
