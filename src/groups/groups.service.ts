@@ -6,6 +6,7 @@ import {
   Injectable,
   InternalServerErrorException,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
@@ -20,8 +21,8 @@ import exceptionMessages from '../common/enums/exceptionMessages.enum';
 
 @Injectable()
 export class GroupsService {
+  private logger: Logger = new Logger('GroupsService');
   constructor(
-    // eslint-disable-next-line no-unused-vars
     @Inject('GROUP_REPOSITORY') private groupRepository: typeof Group,
   ) {}
 
@@ -36,6 +37,8 @@ export class GroupsService {
     });
 
     if (countGroupRows > permissionsGroup[tariff_permission]) {
+      // LOGGING PERMISSION ERROR
+      this.logger.error(`Failed to create group due to Permission Error.`);
       throw new HttpException(
         {
           message: [exceptionMessages.PermissionError],
@@ -50,6 +53,8 @@ export class GroupsService {
     );
 
     if (findGroupByName && findGroupByName.name === createGroupDto.name) {
+      // LOGGING DUPLICATION ERROR
+      this.logger.warn(`Failed to create group due to Duplicate Error.`);
       throw new ConflictException({
         message: [exceptionMessages.DuplicateError],
       });
@@ -108,6 +113,8 @@ export class GroupsService {
     });
 
     if (!group) {
+      // LOGGING NOT FOUND WARN
+      this.logger.warn(`Group is Not Found.`);
       throw new NotFoundException({
         message: 'not_f_group',
       });
@@ -139,10 +146,14 @@ export class GroupsService {
       await group.destroy();
     } catch (error) {
       if (error.parent.code === '23503') {
+        this.logger.error(
+          `Group ca not be deleted due to Relation Delete Error.`,
+        );
         throw new ConflictException({
           message: [exceptionMessages.RelationDeleteError],
         });
       } else {
+        this.logger.error(`Group can not be deleted due to Server Error.`);
         throw new InternalServerErrorException();
       }
     }

@@ -8,6 +8,7 @@ module.exports = {
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT),
     dialect: 'postgres',
+    logging: false,
   },
   test: {
     dialect: 'postgres',
@@ -16,6 +17,7 @@ module.exports = {
     username: 'roku',
     password: 'roku',
     database: 'test',
+    logging: false,
   },
   production: {
     dialect: 'postgres',
@@ -24,5 +26,6 @@ module.exports = {
     username: 'roku',
     password: 'roku',
     database: 'prod',
+    logging: false,
   },
 };
