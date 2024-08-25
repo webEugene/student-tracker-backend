@@ -9,6 +9,7 @@ import {
   UseGuards,
   ParseUUIDPipe,
   Query,
+  Logger,
 } from '@nestjs/common';
 import { GroupsService } from './groups.service';
 import {
@@ -28,12 +29,14 @@ import { GetCompanyIdDto } from '../company/dto/get-company-id.dto';
 @Controller('groups')
 @UseGuards(JwtAuthGuard)
 export class GroupsController {
+  private logger: Logger = new Logger('GroupsController');
   constructor(private readonly groupsService: GroupsService) {}
 
   @Post()
   @ApiOperation({ summary: 'Create group' })
   @ApiResponse({ status: 200, type: Group })
   async create(@Body() createGroupDto: CreateGroupDto): Promise<Group> {
+    this.logger.verbose(`Creating group.`);
     return await this.groupsService.create(createGroupDto);
   }
 
@@ -41,6 +44,7 @@ export class GroupsController {
   @ApiOperation({ summary: 'Change group' })
   @ApiResponse({ status: 200, type: Group })
   async update(@Body() updateGroupDto: UpdateGroupDto): Promise<[number]> {
+    this.logger.verbose(`Updating group.`);
     return await this.groupsService.update(updateGroupDto);
   }
 
@@ -51,6 +55,7 @@ export class GroupsController {
     @Param('id', ParseUUIDPipe) id: string,
     @Query() query: GetCompanyIdDto,
   ): Promise<void> {
+    this.logger.verbose(`Deleting group.`);
     return await this.groupsService.remove({ id, ...query });
   }
 
@@ -58,6 +63,7 @@ export class GroupsController {
   @ApiOperation({ summary: 'Get all groups' })
   @ApiResponse({ status: 200, type: [Group] })
   async findAll(@Query() query: GetCompanyIdDto): Promise<Group[]> {
+    this.logger.verbose(`Getting all groups.`);
     return await this.groupsService.findAllGroups(query);
   }
 
@@ -65,6 +71,7 @@ export class GroupsController {
   @ApiOperation({ summary: 'Get all groups without relations' })
   @ApiResponse({ status: 200, type: [Group] })
   async onlyGroupsFind(@Query() query: GetCompanyIdDto): Promise<Group[]> {
+    this.logger.verbose(`Get all groups without relations.`);
     return await this.groupsService.onlyGroupsFind(query);
   }
 }

@@ -12,6 +12,7 @@ export const databaseConfig: IDatabaseConfig = {
     host: process.env.DB_HOST,
     port: parseInt(process.env.DB_PORT),
     dialect: 'postgres' as Dialect,
+    logging: false,
   },
   test: {
     username: process.env.DB_USER,
@@ -20,6 +21,7 @@ export const databaseConfig: IDatabaseConfig = {
     host: process.env.DB_HOST,
     port: +process.env.DB_PORT,
     dialect: 'postgres' as Dialect,
+    logging: false,
   },
   production: {
     username: process.env.DB_USER,
@@ -30,5 +32,6 @@ export const databaseConfig: IDatabaseConfig = {
     dialectOptions: {
       bigNumberStrings: true,
     },
+    logging: false,
   },
 };
