@@ -22,6 +22,7 @@ import exceptionMessages from '../common/enums/exceptionMessages.enum';
 @Injectable()
 export class GroupsService {
   private logger: Logger = new Logger('GroupsService');
+
   constructor(
     @Inject('GROUP_REPOSITORY') private groupRepository: typeof Group,
   ) {}
@@ -38,7 +39,13 @@ export class GroupsService {
 
     if (countGroupRows > permissionsGroup[tariff_permission]) {
       // LOGGING PERMISSION ERROR
-      this.logger.error(`Failed to create group due to Permission Error.`);
+      this.logger.log({
+        level: 'error',
+        message: 'Failed to create group due to Permission Error.',
+        error: {
+          status: HttpStatus.FORBIDDEN,
+        },
+      });
       throw new HttpException(
         {
           message: [exceptionMessages.PermissionError],
@@ -54,7 +61,10 @@ export class GroupsService {
 
     if (findGroupByName && findGroupByName.name === createGroupDto.name) {
       // LOGGING DUPLICATION ERROR
-      this.logger.warn(`Failed to create group due to Duplicate Error.`);
+      this.logger.log({
+        level: 'error',
+        message: 'Failed to create group due to Duplicate Error.',
+      });
       throw new ConflictException({
         message: [exceptionMessages.DuplicateError],
       });
@@ -114,7 +124,13 @@ export class GroupsService {
 
     if (!group) {
       // LOGGING NOT FOUND WARN
-      this.logger.warn(`Group is Not Found.`);
+      this.logger.log({
+        level: 'warn',
+        message: 'Group is Not Found.',
+        error: {
+          status: HttpStatus.NOT_FOUND,
+        },
+      });
       throw new NotFoundException({
         message: 'not_f_group',
       });
@@ -146,14 +162,26 @@ export class GroupsService {
       await group.destroy();
     } catch (error) {
       if (error.parent.code === '23503') {
-        this.logger.error(
-          `Group ca not be deleted due to Relation Delete Error.`,
-        );
+        this.logger.log({
+          level: 'error',
+          message: 'Group ca not be deleted due to Relation Delete Error.',
+          error: {
+            status: HttpStatus.CONFLICT,
+            code: error.parent.code,
+          },
+        });
         throw new ConflictException({
           message: [exceptionMessages.RelationDeleteError],
         });
       } else {
-        this.logger.error(`Group can not be deleted due to Server Error.`);
+        this.logger.log({
+          level: 'error',
+          message: 'Group can not be deleted due to Server Error.',
+          error: {
+            status: HttpStatus.INTERNAL_SERVER_ERROR,
+            code: error?.parent?.code,
+          },
+        });
         throw new InternalServerErrorException();
       }
     }
