@@ -38,12 +38,12 @@ export class Payment extends Model<Payment> {
   })
   payment_id: bigint;
 
-  @ApiProperty({ example: 'success', description: 'Type status payment' })
+  @ApiProperty({ example: 2, description: 'Type status payment' })
   @Column({
-    type: DataType.STRING,
+    type: DataType.INTEGER,
     allowNull: false,
   })
-  status: string;
+  status: number;
 
   @ApiProperty({ example: '012345', description: 'Order ID got after payment' })
   @Column({
@@ -117,7 +117,7 @@ export class Payment extends Model<Payment> {
     example: '994ba8ac-a052-4194-805b-589204b45716',
     description: 'Foreign key of company_id as UUID',
   })
-  @Column({ type: DataType.UUID })
+  @Column({ type: DataType.UUID, allowNull: false })
   @ForeignKey(() => Company)
   company_id: string;
 

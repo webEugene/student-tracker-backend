@@ -4,7 +4,6 @@ import { CreateLiqpayDto } from './dto/create-liqpay-dto';
 
 @Controller('payments')
 export class PaymentsController {
-  // eslint-disable-next-line no-unused-vars
   constructor(private readonly paymentService: PaymentsService) {}
 
   @Post('/liqpay')
@@ -13,20 +12,10 @@ export class PaymentsController {
   ): Promise<string> {
     return this.paymentService.createPaymentLiqpay(createLiqpayDto);
   }
-  @Post('/callback-url')
-  async handleCallback(@Res() res: any) {
-    // const { signature, data } = res.req.body;
-    console.log(res.req.body);
-    // await this.paymentService.handleServerCallback(signature, data);
-  }
+
   @Post('/server-url')
   async handleServerCallback(@Res() res: any): Promise<void> {
     const { signature, data } = res.req.body;
     await this.paymentService.handleServerUrl(data, signature);
-  }
-
-  @Post('/request-result')
-  async handleRequestResult(@Body() order_id: string): Promise<void> {
-    await this.paymentService.handleRequestResult(order_id);
   }
 }

@@ -295,11 +295,6 @@ export class UsersService {
       include: [
         {
           model: Company,
-          attributes: [
-            'payment_status',
-            'tariff_start_date',
-            'tariff_end_date',
-          ],
         },
       ],
     });
@@ -314,10 +309,9 @@ export class UsersService {
         structurePaymentResponse.push({
           amount: payment.amount,
           currency: payment.currency,
-          status: admin.company.payment_status,
+          status: payment.status,
           plan: payment.plan,
-          tariff_start_date: admin.company.tariff_start_date,
-          tariff_end_date: admin.company.tariff_end_date,
+          tariff_start_date: payment.createdAt,
         });
       });
     }

@@ -6,7 +6,6 @@ import { WinstonModule } from 'nest-winston';
 import { CustomLoggerService } from './core/custom-logger';
 
 async function bootstrap(): Promise<void> {
-  // const logger: Logger = new Logger();
   const customLoggerService = new CustomLoggerService();
   const port: string = process.env.PORT;
   const app = await NestFactory.create(AppModule, {

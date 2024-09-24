@@ -44,8 +44,8 @@ import { PaymentsController } from './payments/payments.controller';
     VisitsModule,
     TeachersModule,
     ImagesModule,
-    PaymentsModule,
     CompanyModule,
+    PaymentsModule,
     PlansModule,
     MailerModule,
     ServeStaticModule.forRoot({
