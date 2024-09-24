@@ -11,7 +11,7 @@ module.exports = {
       },
       payment_id: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
       },
       status: {
         type: Sequelize.STRING,
@@ -19,7 +19,7 @@ module.exports = {
       },
       order_id: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       liqpay_order_id: {
         type: Sequelize.STRING,

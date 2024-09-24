@@ -4,11 +4,14 @@ import {
   HttpException,
   HttpStatus,
   Inject,
+  Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { Company } from './company.model';
 import { ImagesService } from '../images/images.service';
 import { ChangeCompanyTariffPlanDto } from './dto/change-tariff.dto';
+// import { PaymentsService } from '../payments/payments.service';
+// import { v4 as uuidv4 } from 'uuid';
 
 enum PaymentStatusEnum {
   FREE,
@@ -17,10 +20,12 @@ enum PaymentStatusEnum {
   WAITING,
 }
 
+@Injectable()
 export class CompanyService {
   constructor(
     @Inject('COMPANY_REPOSITORY') private companyRepository: typeof Company,
     private imageService: ImagesService,
+    // private paymentsService: PaymentsService,
   ) {}
 
   async create(createCompanyDto: CreateCompanyDto): Promise<Company> {
@@ -114,9 +119,56 @@ export class CompanyService {
         HttpStatus.BAD_GATEWAY,
       );
     } else {
+      if (payment_status === PaymentStatusEnum.FREE) {
+        // type PreSavePayment = {
+        //   readonly company_id: string;
+        //   readonly plan: number;
+        //   readonly amount: string;
+        //   readonly currency: string;
+        //   readonly status: number;
+        //   readonly order_id: string;
+        // };
+        // const paymentDataPreSave: PreSavePayment = {
+        //   company_id: company.id,
+        //   plan: changeTariffPlanDto.plan,
+        //   amount: '0',
+        //   currency: 'UAH',
+        //   order_id: uuidv4(),
+        //   status: PaymentStatusEnum.FREE,
+        // };
+        //
+        // await this.paymentsService.savePayment(paymentDataPreSave);
+      }
+
       return {
         status: 200,
       };
     }
+  }
+
+  async updateTariffPlan(payment_id, status, company_id, createdAt) {
+    const company: Company = await this.findCompanyById(company_id);
+    if (company === null) {
+      throw new HttpException(
+        'Company not found exists!',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const getDate: Date = new Date();
+    const addOneMonth: number = getDate.setMonth(getDate.getMonth() + 1);
+    const dateToISO: string = new Date(addOneMonth).toISOString();
+
+    await this.companyRepository.update(
+      {
+        payment_status: status,
+        tariff_start_date: createdAt,
+        tariff_end_date: dateToISO,
+      },
+      {
+        where: {
+          id: company.id,
+        },
+      },
+    );
   }
 }

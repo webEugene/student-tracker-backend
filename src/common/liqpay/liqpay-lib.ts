@@ -33,7 +33,7 @@ enum Languages {
 
 type DecodedDataPaymentType = {
   readonly payment_id: bigint;
-  readonly status: string;
+  readonly status: number;
   readonly order_id: string;
   readonly liqpay_order_id: string;
   readonly amount: string;
@@ -176,7 +176,6 @@ export class LiqPayLib implements ILiqPayInterface {
     const signature: string = this.strToSign(
       `${this.private_key}${data}${this.private_key}`,
     );
-
     return `
       <form method="POST" action="https://www.liqpay.ua/api/3/checkout" accept-charset="utf-8">
         <input type="hidden" name="data" value="${data}" />

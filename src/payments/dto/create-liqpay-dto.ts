@@ -3,7 +3,6 @@ import { IsNotEmpty, IsString, IsUUID, IsNumber } from 'class-validator';
 
 export class CreateLiqpayDto {
   @ApiProperty({
-    // example: 'Premium',
     example: 0,
     description: 'Name of the plan in number',
   })

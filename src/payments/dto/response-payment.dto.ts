@@ -3,10 +3,7 @@ import { IsNumber, IsString } from 'class-validator';
 
 export class ResponsePaymentDto {
   @IsNumber()
-  readonly payment_id: number;
-
-  @IsString()
-  readonly status: string;
+  readonly payment_id: bigint;
 
   @IsString()
   readonly order_id: string;
@@ -32,7 +29,7 @@ export class ResponsePaymentDto {
   readonly payment_time: string;
 
   @IsString()
-  readonly transaction_id: string;
+  readonly transaction_id: bigint;
 
   @IsString()
   readonly signature: string;

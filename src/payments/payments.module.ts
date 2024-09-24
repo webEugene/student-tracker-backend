@@ -7,9 +7,9 @@ import { AuthModule } from '../auth/auth.module';
 import { CompanyModule } from '../company/company.module';
 
 @Module({
-  providers: [PaymentsService, ...paymentsProviders],
   controllers: [PaymentsController],
+  providers: [PaymentsService, ...paymentsProviders],
   exports: [PaymentsService],
-  imports: [DatabaseModule, forwardRef(() => AuthModule), CompanyModule],
+  imports: [DatabaseModule, CompanyModule, forwardRef(() => AuthModule)],
 })
 export class PaymentsModule {}
